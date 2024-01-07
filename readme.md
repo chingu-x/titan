@@ -16,6 +16,8 @@ To close the ticket you can use `.close.` This will change the name of the threa
 * `npm install` to install the dependencies 
 * You also need to set your bot token in a `.env` file, and pass it in through the `token` variable
 
+* When commands are updated or new commands are added, run `node deploy-commands.js`. This will update the server with the new changes. Only needed regarding commands.
+
 #### Dependencies
 * discord.js version 14.14.1
 * dotenv
@@ -24,6 +26,7 @@ To close the ticket you can use `.close.` This will change the name of the threa
 Your .env should contain the following:
 * `DISCORD_TOKEN = <your-discord-token>`
 * `CLIENT_ID = <your-client-id>`
+* `GUILD_ID = <your-server-id>`
 
 Both can be found in the [Discord Developer Portal](https://discord.com/developers/)
 
