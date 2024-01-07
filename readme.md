@@ -1,5 +1,5 @@
 # Titan
-Titan is named after one of Saturns moons, Titan, which also looks green and therfore fit in with the Chingu theme.
+Titan is named after one of Saturns moons, Titan, which also looks green and therfore fit with the Chingu theme.
 #### Titan is a discord bot made for Chingu
 ___
 #### How it functions
