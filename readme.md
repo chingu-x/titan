@@ -1,6 +1,6 @@
 # Titan
 Titan is named after one of Saturns moons, Titan, which also looks green and therfore fit in with the Chingu theme.
-#### Titan is a discord bot that currently only has a ticket function
+#### Titan is a discord bot made for Chingu
 ___
 #### How it functions
 Titan is simple. To open a ticket, the user can either click a button in a ticket channel, or send it DM. Titan then opens a thread inside a channel of your choosing with the name of the user as well as their ID. Titan then lets the user know that they've opened a ticket.
