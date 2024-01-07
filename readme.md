@@ -34,7 +34,12 @@ ___
 ## Todo
 * Refactor, refactor, refactor
 * Add more functionality:
+  * Improve server.js
+  * Improve user.js
+    * Maybe add airtable stats
   * Reward system
+    * Users can give eachother reactions as a reward for helping
   * Message scheduling system
+    * Schedule weekly messages
   * Probably more....
   * Maybe a web-interface
