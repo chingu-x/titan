@@ -1,5 +1,7 @@
 # Titan
-![Static Badge](https://img.shields.io/badge/14.14.1-purple?style=for-the-badge&logo=discord&logoColor=white&label=discord.js&labelColor=%235865f2&color=%232c2f33)
+![Static Badge](https://img.shields.io/badge/14.14.1-purple?style=plastic&logo=discord&logoColor=white&label=discord.js&labelColor=%235865f2&color=%232c2f33)
+
+flat, flat-square, plastic, for-the-badge, social
 
 Titan is named after one of Saturns moons, Titan, which also looks green and therfore fit with the Chingu theme.
 #### Titan is a discord bot made for Chingu
