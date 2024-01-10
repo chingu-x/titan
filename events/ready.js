@@ -1,5 +1,7 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, Events, EmbedBuilder } = require('discord.js');
 const openTicketChannel = '1193342042080817323'; // Open ticket channel ID
+const tempVoiceID = '1194571625337724960'; // Temp voice text channel ID
+const createMenu = require('./tempVoice.js');
 
 module.exports = {
     name: Events.ClientReady,
@@ -8,10 +10,13 @@ module.exports = {
         console.log(`Ready! Logged in as ${client.user.tag}`);
 		
 		await client.user.setPresence({ 
-			activities: [{ 
-				name: 'DM for help' }], 
+            activities: [{ 
+                name: 'DM for help' }], 
 				status: 'online' 
 			});
+            
+        categoryIds = ['1193601116114522214', '1193601118274596864', '1193601119952318475'];
+        await createMenu(client, categoryIds, tempVoiceID);
 
         async function sendButtonMessage(client, channelId) {
             // Get the channel
