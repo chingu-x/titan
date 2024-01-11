@@ -64,6 +64,17 @@ async function createMenu(client, categoryIds, channelId) {
         return;
     }
 
+    // Fetch the messages in the channel
+    const messages = await channel.messages.fetch();
+
+    // If there are any messages, delete them
+    if (messages.size > 0) {
+        await channel.bulkDelete(messages);
+    }
+
+    // Send a message explaining how to use the select menus
+    await channel.send('Select your team from the dropdown menu to create a voice channel for your team.');
+
     // Send each row to the channel
     for (let row of rows) {
         channel.send(row);
