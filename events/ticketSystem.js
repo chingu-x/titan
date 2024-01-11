@@ -1,7 +1,7 @@
 const { Events, EmbedBuilder } = require('discord.js');
 require('dotenv').config();
-const serverId = '330284646283608064';
-const channelId = '432335517657464833';
+const serverId = '423298224992944128';
+const channelId = '1194954848089673728';
 
 module.exports = {
     name: Events.MessageCreate,
