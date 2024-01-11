@@ -21,6 +21,10 @@ To close the ticket you can use `.close.` This will change the name of the threa
 
 ### Temporary private voice channels
 Temporary private voice channels are created by the user inside a dedicated text channel. The text channel has a select menu (dropdown menu) for each category. The user selects their team text channel from the select menu, and the bot copies all permissions from the team channel that the user chose, and applies them to the new voice channel. The voice channel will appear just below the text channel it was created from, in the same category.
+___
+### Admin Commands
+* /purgechannels `<category ID>`
+  * Removes all channels in the given category ID
 
 #### How to run
 * `npm install` to install the dependencies 
