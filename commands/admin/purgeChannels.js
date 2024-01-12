@@ -10,6 +10,7 @@ module.exports = {
         try {
             // Check if the sender has the 'ADMINISTRATOR' permission
             if (interaction.member.permissions.has('ADMINISTRATOR')) {
+
                 // Extract the category ID from the options
                 const categoryId = interaction.options.getString('category');
 
@@ -23,6 +24,7 @@ module.exports = {
 
                     // Check if channels is defined and is a Collection
                     if (channels && channels instanceof Collection) {
+                        
                         // Delete all channels in the category
                         channels.forEach(channel => channel.delete());
                         await interaction.reply('Category purged successfully.');
