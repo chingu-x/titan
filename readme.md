@@ -47,6 +47,7 @@ Your .env should contain the following:
 * `CATEGORY_TIER_1_ID = <voice-channel-category-1>`
 * `CATEGORY_TIER_2_ID = <voice-channel-category-2>`
 * `CATEGORY_TIER_3_ID = <voice-channel-category-3>`
+* `ADMIN_ROLE_ID = <admin-role-id>`
 
 Token and Client ID can be found in the [Discord Developer Portal](https://discord.com/developers/)
 
