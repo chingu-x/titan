@@ -7,10 +7,10 @@ const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('userCheck')
+        .setName('usercheck')
         .setDescription('Provides information about a user.')
         .addStringOption(option =>
-            option.setName('Discord ID')
+            option.setName('discordid')
                 .setDescription('The users Discord ID.')
                 .setRequired(true)),
     async execute(interaction) {
