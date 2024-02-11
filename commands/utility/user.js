@@ -26,27 +26,29 @@ module.exports = {
             // Check if the user's record exists
             if (applications.length > 0) {
                 const application = applications[0];
-				const voyageSignup = voyageSignups[0];
-
                 const applicationData = application.fields;
-				const voyageSignupData = voyageSignup.fields;
-
+            
+                let voyageSignupData;
+                if (voyageSignups.length > 0) {
+                    const voyageSignup = voyageSignups[0];
+                    voyageSignupData = voyageSignup.fields;
+                }
+            
                 // Check if the Discord name and email match in both tables
-				const isDiscordNameMatch = applicationData['Discord Name'] === voyageSignupData['Discord Name'] ? 'Match <a:check:1196112072614887534>' : 'Mismatch :x:';
-				const isEmailMatch = applicationData['Email'] === voyageSignupData['Email'] ? 'Match <a:check:1196112072614887534>' : 'Mismatch :x:';
+                const isDiscordNameMatch = voyageSignupData && applicationData['Discord Name'] === voyageSignupData['Discord Name'] ? 'Match <a:check:1196112072614887534>' : 'Mismatch :x:';
+                const isEmailMatch = voyageSignupData && applicationData['Email'] === voyageSignupData['Email'] ? 'Match <a:check:1196112072614887534>' : 'Mismatch :x:';
 				
-                // Get the evaluation status
                 let evaluationStatus = applicationData['Evaluation Status (from Solo Project Link)'];
-				if (Array.isArray(evaluationStatus)) {
-					if (evaluationStatus.includes('Passed')) {
-						evaluationStatus = 'Passed';
-					} else {
-						evaluationStatus = evaluationStatus[evaluationStatus.length - 1];
-					}
-				}
+                if (Array.isArray(evaluationStatus)) {
+                    if (evaluationStatus.includes('Passed')) {
+                        evaluationStatus = 'Passed';
+                    } else {
+                        evaluationStatus = evaluationStatus[evaluationStatus.length - 1];
+                    }
+                }
 				
 				const status = (applicationData['Discord Name'] === interaction.user.username) ? 'OK <a:check:1196112072614887534>' : 'Mismatch :x:';
-                const evaluationEmoji = (evaluationStatus.toLowerCase() === 'passed') ? '<a:check:1196112072614887534>' : ':x:';
+                const evaluationEmoji = (evaluationStatus && evaluationStatus.toLowerCase() === 'passed') ? '<a:check:1196112072614887534>' : ':x:';
 
                 // Create an embed message
                 const embed = new EmbedBuilder()

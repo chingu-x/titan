@@ -34,6 +34,8 @@ module.exports = {
                 } else {
                     await interaction.reply('Invalid category ID.');
                 }
+            } else {
+                await interaction.reply({ content: 'You do not have permission to use this command.', ephemeral: true });
             }
         } catch (error) {
             console.error(error);

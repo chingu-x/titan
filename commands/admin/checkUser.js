@@ -14,10 +14,9 @@ module.exports = {
                 .setDescription('The users Discord ID.')
                 .setRequired(true)),
     async execute(interaction) {
-        // Check if the command is used in the specific channels
-        const allowedChannels = ['1195050183403262053', '1194954848089673728'];
-        if (!allowedChannels.includes(interaction.channelId)) {
-            return await interaction.reply({ content: 'You can only use this command in specific channels.', ephemeral: true });
+        // Check if the user has the 'Admin' role
+        if (!interaction.member.roles.cache.some(role => role.name === 'ServerAdmin')) {
+            return await interaction.reply({ content: 'You do not have permission to use this command.', ephemeral: true });
         }
 
         // Get the Discord ID from the command argument
@@ -43,14 +42,17 @@ module.exports = {
             // Check if the user's record exists
             if (applications.length > 0) {
                 const application = applications[0];
-				const voyageSignup = voyageSignups[0];
-
                 const applicationData = application.fields;
-				const voyageSignupData = voyageSignup.fields;
-
+            
+                let voyageSignupData;
+                if (voyageSignups.length > 0) {
+                    const voyageSignup = voyageSignups[0];
+                    voyageSignupData = voyageSignup.fields;
+                }
+            
                 // Check if the Discord name and email match in both tables
-				const isDiscordNameMatch = applicationData['Discord Name'] === voyageSignupData['Discord Name'] ? 'Match <a:check:1196112072614887534>' : 'Mismatch :x:';
-				const isEmailMatch = applicationData['Email'] === voyageSignupData['Email'] ? 'Match <a:check:1196112072614887534>' : 'Mismatch :x:';
+                const isDiscordNameMatch = voyageSignupData && applicationData['Discord Name'] === voyageSignupData['Discord Name'] ? 'Match <a:check:1196112072614887534>' : 'Mismatch :x:';
+                const isEmailMatch = voyageSignupData && applicationData['Email'] === voyageSignupData['Email'] ? 'Match <a:check:1196112072614887534>' : 'Mismatch :x:';
 				
                 let evaluationStatus = applicationData['Evaluation Status (from Solo Project Link)'];
                 if (Array.isArray(evaluationStatus)) {
@@ -62,7 +64,7 @@ module.exports = {
                 }
 				
 				const status = (applicationData['Discord Name'] === username) ? 'OK <a:check:1196112072614887534>' : 'Mismatch :x:';
-                const evaluationEmoji = (evaluationStatus.toLowerCase() === 'passed') ? '<a:check:1196112072614887534>' : ':x:';
+                const evaluationEmoji = (evaluationStatus && evaluationStatus.toLowerCase() === 'passed') ? '<a:check:1196112072614887534>' : ':x:';
 
                 const embed = new EmbedBuilder()
                     .setColor('#6DE194')
