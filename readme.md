@@ -43,6 +43,7 @@ Lets the user know if their email and Discord account match with what's currentl
 * `npm install` to install the dependencies 
 * You also need to set your bot token in a `.env` file, and pass it in through the `token` variable
 
+* `node index.js` to run the bot
 * When new commands are added, run `node deploy-commands.js`. This will update the server with the new changes. Only needed regarding commands.
 
 #### Dependencies
