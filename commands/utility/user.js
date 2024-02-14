@@ -1,9 +1,19 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const Airtable = require('airtable');
+const {nextVoyage} = require("../../utils/constants");
 require('dotenv').config();
 
 // Initialize Airtable
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE);
+
+const getNextVoyageSignup = async (discordId) => {
+    return await base('Voyage Signups')
+        .select({
+            filterByFormula: `AND(Voyage = "V${nextVoyage}",{Discord ID}="${discordId}")`,
+            fields:['Commitment Form Completed', 'Tier'],
+            maxRecords: 3
+        }).firstPage()
+}
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -22,6 +32,19 @@ module.exports = {
 				filterByFormula: `{Discord ID} = '${interaction.user.id}'`,
                 fields: ['Discord Name', 'Email']
 			}).firstPage();
+
+
+
+            // User signup for next voyage
+            const nextVoyageSignup = await getNextVoyageSignup(interaction.user.id)
+            const nextVoyageSignupText = nextVoyageSignup.length!==0?
+                `Yes (${nextVoyageSignup[0].fields['Tier'].slice(0,6)}) <a:check:1196112072614887534> `:
+                'No :x: https://forms.gle/DajSfXQCX4qbMAu8A'
+            const commitmentFormText = nextVoyageSignup.length===0? 'N/A':
+                nextVoyageSignup[0]?.fields['Commitment Form Completed'] === 'Yes'?
+            'Yes <a:check:1196112072614887534>':
+            'No :x: https://forms.gle/p5bhpoKFVBatQhnCA'
+
 
             // Check if the user's record exists
             if (applications.length > 0) {
@@ -64,7 +87,12 @@ module.exports = {
 					.addFields(
 						{ name: 'Voyage Email Match', value: isEmailMatch, inline: true },
 						{ name: 'Voyage Discord Match', value: isDiscordNameMatch, inline: true },
-					)
+                        { name: '\u200B', value: '\u200B' },
+                    )
+                    .addFields(
+                        { name: `Signed up for V${nextVoyage}?`, value: nextVoyageSignupText, inline:true},
+                        { name: `Commitment Form for V${nextVoyage}?`, value: commitmentFormText, inline:true}
+                    )
 					.setThumbnail('https://imgur.com/EII19bn.png');
 
                 // Reply with the user's information in an embed message
