@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const Airtable = require('airtable');
+const {nextVoyage} = require("../../utils/constants");
 require('dotenv').config();
 
 // Initialize Airtable
@@ -44,8 +45,8 @@ module.exports = {
 
             // Fetch the user's voyage signups from Airtable
             const voyageSignups = await base('Voyage Signups').select({
-                filterByFormula: `{Discord ID} = '${discordId}'`,
-                fields: ['Discord Name', 'Email']
+                filterByFormula: `AND(OR(Voyage = "V${nextVoyage}",Voyage = "V??"), {Discord ID} = '${discordId}')`,
+                fields: ['Discord Name', 'Email', 'Commitment Form Completed', 'Tier']
             }).firstPage();
 
             let voyageSignupData = null;
@@ -54,6 +55,15 @@ module.exports = {
                 voyageSignupData = voyageSignup.fields;
             }
 
+            // User signup for next voyage
+            const nextVoyageSignupText = voyageSignups.length!==0?
+                `Yes (${voyageSignups[0].fields['Tier'].slice(0,6)}) <a:check:1196112072614887534> `:
+                'No :x:'
+            const commitmentFormText = voyageSignups.length===0? 'N/A':
+                voyageSignups[0]?.fields['Commitment Form Completed'] === 'Yes'?
+                    'Yes <a:check:1196112072614887534>':
+                    'No :x:'
+
             // Fetch the user's solo project from Airtable
             const soloProjects = await base('Solo Projects').select({
                 filterByFormula: `{Discord ID} = '${discordId}'`,
@@ -61,9 +71,13 @@ module.exports = {
             }).firstPage();
 
             let soloProjectData = null;
+            let githubId = 'N/A';
+            let soloProjectTier = 'N/A';
             if (soloProjects.length > 0) {
                 const soloProject = soloProjects[0];
                 soloProjectData = soloProject.fields;
+                githubId = soloProjectData['GitHub ID'];
+                soloProjectTier = `Tier ${soloProjectData['Tier'][5]}`;
             }
 
                 // Check if the Discord name and email match in both tables
@@ -78,9 +92,14 @@ module.exports = {
                         evaluationStatus = evaluationStatus[evaluationStatus.length - 1];
                     }
                 }
+
+                let evaluationEmoji = ':x:';
+                if (evaluationStatus && evaluationStatus.toLowerCase() === 'passed') {
+                    evaluationEmoji = '<a:check:1196112072614887534>';
+                }
 				
 				const status = (applicationData['Discord Name'] === username) ? 'OK <a:check:1196112072614887534>' : 'Mismatch :x:';
-                const evaluationEmoji = (evaluationStatus.toLowerCase() === 'passed') ? '<a:check:1196112072614887534>' : ':x:';
+
 
                 // Create an embed message
                 const embed = new EmbedBuilder()
@@ -93,14 +112,19 @@ module.exports = {
                         { name: '\u200B', value: '\u200B' },
                         { name: 'Discord account match', value: status ? status : 'N/A', inline: true },
                         { name: 'Evaluation Status', value: evaluationStatus ? `${evaluationStatus} ${evaluationEmoji}` : 'N/A', inline: true },
-                        { name: 'Solo Project Tier', value: soloProjectData && soloProjectData['Tier'] ? `Tier ${soloProjectData['Tier'][5]}` : 'N/A', inline : true},
+                        { name: 'Solo Project Tier', value: soloProjectTier, inline : true},
                         { name: '\u200B', value: '\u200B' },
                     )
                     .addFields(
                         { name: 'Voyage Email Match', value: isEmailMatch ? isEmailMatch : 'N/A', inline: true },
                         { name: 'Voyage Discord Match', value: isDiscordNameMatch ? isDiscordNameMatch : 'N/A', inline: true },
+                        { name: '\u200B', value: '\u200B'},
                     )
-					.setThumbnail('https://imgur.com/EII19bn.png');
+                    .addFields(
+                        { name: `Signed up for V${nextVoyage}?`, value: nextVoyageSignupText, inline: true},
+                        { name: `Commitment Form for V${nextVoyage}?`, value: commitmentFormText, inline: true}
+                    )
+                    .setThumbnail('https://imgur.com/EII19bn.png');
 
                 // Reply with the user's information in an embed message
                 await interaction.reply({ 
