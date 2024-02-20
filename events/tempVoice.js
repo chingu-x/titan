@@ -93,7 +93,6 @@ async function createMenu(client, categoryIds, channelId) {
         // Get the text channel from the guild
         const textChannel = interaction.guild.channels.cache.get(textChannelId);
 
-        // If the text channel is not found or it's not a text channel, log an error and return
         // If the text channel is not found or it's not a text channel or a thread channel, log an error and return
         if (!textChannel || (textChannel.type !== 0 && textChannel.type !== 15)) {
             console.log(`Channel with ID ${textChannelId} not found or not a text or thread channel`);
