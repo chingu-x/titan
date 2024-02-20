@@ -1,6 +1,9 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, Events, EmbedBuilder } = require('discord.js');
-const openTicketChannel = '1193342042080817323'; // Open ticket channel ID
-const tempVoiceID = '1194571625337724960'; // Temp voice text channel ID
+require('dotenv').config();
+// const openTicketChannel = '1193342042080817323'; // Chingu Open ticket channel ID
+// const tempVoiceID = '1194571625337724960'; // Chingu Temp voice text channel ID
+const openTicketChannel = process.env.OPEN_TICKET_CHANNEL_ID; // Tester Open ticket channel ID
+const tempVoiceID = process.env.TEMP_VOICE_ID; // Tester Temp voice text channel ID
 const createMenu = require('./tempVoice.js');
 
 module.exports = {
@@ -15,7 +18,7 @@ module.exports = {
 				status: 'online' 
 			});
             
-        categoryIds = ['1193601116114522214', '1193601118274596864', '1193601119952318475'];
+        categoryIds = [process.env.CATEGORY_TIER_1_ID, process.env.CATEGORY_TIER_2_ID, process.env.CATEGORY_TIER_3_ID];
         await createMenu(client, categoryIds, tempVoiceID);
 
         async function sendButtonMessage(client, channelId) {
