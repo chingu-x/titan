@@ -57,11 +57,11 @@ module.exports = {
 
             // User signup for next voyage
             const nextVoyageSignupText = voyageSignups.length!==0?
-                `Yes (${voyageSignups[0].fields['Tier'].slice(0,6)}) <a:check:1196112072614887534> `:
+                `Yes (${voyageSignups[0].fields['Tier'].slice(0,6)}) <a:check:1209501960139702363> `:
                 'No :x:'
             const commitmentFormText = voyageSignups.length===0? 'N/A':
                 voyageSignups[0]?.fields['Commitment Form Completed'] === 'Yes'?
-                    'Yes <a:check:1196112072614887534>':
+                    'Yes <a:check:1209501960139702363>':
                     'No :x:'
 
             // Fetch the user's solo project from Airtable
@@ -81,8 +81,8 @@ module.exports = {
             }
 
                 // Check if the Discord name and email match in both tables
-				const isDiscordNameMatch = applicationData && voyageSignupData && applicationData['Discord Name'] === voyageSignupData['Discord Name'] ? 'Match <a:check:1196112072614887534>' : (applicationData && voyageSignupData ? 'Mismatch :x:' : 'N/A');
-                const isEmailMatch = applicationData && voyageSignupData && applicationData['Email'] === voyageSignupData['Email'] ? 'Match <a:check:1196112072614887534>' : (applicationData && voyageSignupData ? 'Mismatch :x:' : 'N/A');
+				const isDiscordNameMatch = applicationData && voyageSignupData && applicationData['Discord Name'] === voyageSignupData['Discord Name'] ? 'Match <a:check:1209501960139702363>' : (applicationData && voyageSignupData ? 'Mismatch :x:' : 'N/A');
+                const isEmailMatch = applicationData && voyageSignupData && applicationData['Email'] === voyageSignupData['Email'] ? 'Match <a:check:1209501960139702363>' : (applicationData && voyageSignupData ? 'Mismatch :x:' : 'N/A');
 				
                 let evaluationStatus = applicationData['Evaluation Status (from Solo Project Link)'];
                 if (Array.isArray(evaluationStatus)) {
@@ -95,10 +95,10 @@ module.exports = {
 
                 let evaluationEmoji = ':x:';
                 if (evaluationStatus && evaluationStatus.toLowerCase() === 'passed') {
-                    evaluationEmoji = '<a:check:1196112072614887534>';
+                    evaluationEmoji = '<a:check:1209501960139702363>';
                 }
 				
-				const status = (applicationData['Discord Name'] === username) ? 'OK <a:check:1196112072614887534>' : 'Mismatch :x:';
+				const status = (applicationData['Discord Name'] === username) ? 'OK <a:check:1209501960139702363>' : 'Mismatch :x:';
 
 
                 // Create an embed message
@@ -107,7 +107,7 @@ module.exports = {
                     .setTitle('User Information')
                     .setDescription("A check to see that your Discord account matches with your application, and that you've passed the Solo Project. If any of the fields show an :x:, please open a ticket in <#1105911757177888908> to resolve the issue.")
                     .addFields(
-                        { name: 'Email', value: applicationData && applicationData['Email'] ? `${applicationData['Email']} <a:check:1196112072614887534>` : 'No email found :x:', inline: true },
+                        { name: 'Email', value: applicationData && applicationData['Email'] ? `${applicationData['Email']} <a:check:1209501960139702363>` : 'No email found :x:', inline: true },
                         { name: 'Github ID', value: soloProjectData && soloProjectData['GitHub ID'] ? `${soloProjectData['GitHub ID']}` : 'N/A', inline : true},
                         { name: '\u200B', value: '\u200B' },
                         { name: 'Discord account match', value: status ? status : 'N/A', inline: true },
