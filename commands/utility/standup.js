@@ -62,7 +62,7 @@ module.exports = {
     }
 
     interaction
-      .awaitModalSubmit({ filter, time: 300000 })
+      .awaitModalSubmit({ filter, time: 600000 })
       .then(async (modalInteraction) => {
         try {
           const yesterday =
