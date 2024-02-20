@@ -105,7 +105,7 @@ module.exports = {
                 const embed = new EmbedBuilder()
                     .setColor('#6DE194')
                     .setTitle('User Information')
-                    .setDescription("A check to see that your Discord account matches with your application, and that you've passed the Solo Project. If any of the fields show an :x:, please open a ticket in <#1194953897408737350> to resolve the issue.")
+                    .setDescription("A check to see that your Discord account matches with your application, and that you've passed the Solo Project. If any of the fields show an :x:, please open a ticket in <#1105911757177888908> to resolve the issue.")
                     .addFields(
                         { name: 'Email', value: applicationData && applicationData['Email'] ? `${applicationData['Email']} <a:check:1196112072614887534>` : 'No email found :x:', inline: true },
                         { name: 'Github ID', value: soloProjectData && soloProjectData['GitHub ID'] ? `${soloProjectData['GitHub ID']}` : 'N/A', inline : true},
