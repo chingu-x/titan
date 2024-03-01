@@ -37,7 +37,6 @@ module.exports = {
                 const voyageSignup = voyageSignups[0];
                 voyageSignupData = voyageSignup.fields;
             }
-            console.log("voyageSignupData", voyageSignupData)
 
             // User signup for next voyage
             const nextVoyageSignupText = voyageSignups.length!==0?
