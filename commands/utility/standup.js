@@ -27,7 +27,7 @@ const createResponseEmbed = (interaction, yesterday, today, blockers) => {
         .addFields(
             { name: 'Yesterday:', value: yesterday },
             { name: 'Today:', value: today },
-            blockers ? { name: 'Blockers:', value: blockers } : null, // Only add blockers field if it has a value
+            { name: 'Blockers:', value: blockers },
         )
         .setFooter({
             text: `standup by ${name}`,
@@ -56,7 +56,7 @@ module.exports = {
         const filter = (interaction) => interaction.customId === 'standupModal';
 
         try {
-            const modalInteraction = await interaction.awaitModalSubmit({ filter, time: 10000 }); // Timeout value
+            const modalInteraction = await interaction.awaitModalSubmit({ filter, time: 300000 }); // 5 minutes
 
             const yesterday = modalInteraction.fields.getTextInputValue('yesterdayInput');
             const today = modalInteraction.fields.getTextInputValue('todayInput');
@@ -67,11 +67,10 @@ module.exports = {
             }
 
             const response = createResponseEmbed(interaction, yesterday, today, blockers);
-            await modalInteraction.reply({ embeds: [response] }); // Use "modalInteraction" here to reply to the correct interaction
+            await modalInteraction.reply({ embeds: [response] });
         } catch (error) {
             if (error.code === 'InteractionCollectorError') {
                 console.error('Interaction timed out.');
-                // Optionally, inform the user about the timeout and suggest retrying
             } else {
                 handleError(console, error);
             }
