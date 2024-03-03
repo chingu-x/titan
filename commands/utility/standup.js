@@ -56,7 +56,7 @@ module.exports = {
         const filter = (interaction) => interaction.customId === 'standupModal';
 
         try {
-            const modalInteraction = await interaction.awaitModalSubmit({ filter, time: 300000 }); // 5 minutes
+            const modalInteraction = await interaction.awaitModalSubmit({ filter, time: 600000 }); // 10 minutes
 
             const yesterday = modalInteraction.fields.getTextInputValue('yesterdayInput');
             const today = modalInteraction.fields.getTextInputValue('todayInput');
