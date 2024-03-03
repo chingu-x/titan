@@ -29,7 +29,7 @@ module.exports = {
             // Fetch the user's voyage signups from Airtable
             const voyageSignups = await base('Voyage Signups').select({
                 filterByFormula: `AND(OR(Voyage = "V${nextVoyage}",Voyage = "V??"), {Discord ID} = '${interaction.user.id}')`,
-                fields: ['Discord Name', 'Email', 'Commitment Form Completed', 'Tier']
+                fields: ['Discord Name', 'Email', 'Commitment Form Completed', 'Tier', 'Voyage']
             }).firstPage();
 
             let voyageSignupData = null;
@@ -40,7 +40,8 @@ module.exports = {
 
             // User signup for next voyage
             const nextVoyageSignupText = voyageSignups.length!==0?
-                `Yes (${voyageSignups[0].fields['Tier'].slice(0,6)}) <a:check:1209501960139702363> `:
+                voyageSignupData["Voyage"] === "V??"?`Pending`:
+                `Yes (${voyageSignups[0].fields['Tier'].slice(0,6)}) <a:check:1209501960139702363>`:
                 'No :x: [Click Here to Signup](https://forms.gle/DajSfXQCX4qbMAu8A)'
             const commitmentFormText = voyageSignups.length===0? 'N/A':
                 voyageSignups[0]?.fields['Commitment Form Completed'] === 'Yes'?

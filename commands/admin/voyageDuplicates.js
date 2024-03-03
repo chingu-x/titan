@@ -29,7 +29,13 @@ module.exports = {
                 const countsArray = Array.from(countsMap, ([email, signups]) => ({email, signups}))
                 const duplicates = countsArray.filter(e=>e.signups>1)
 
-                await interaction.reply(`Duplicate Signups (V${nextVoyage}) - ${countsMap.size} unique ${JSON.stringify(duplicates)}`);
+                let duplicatesMessage = `Duplicate Signups (V${nextVoyage}) - ${countsMap.size} unique\n${duplicates.length} duplicates:\n`;
+                duplicates.forEach(duplicate => {
+                    duplicatesMessage += `Email: ${duplicate.email}, Signups: ${duplicate.signups}\n`;
+                });
+
+                // Send the duplicates message as the reply to the interaction
+                await interaction.reply(duplicatesMessage);
             }else{
                 await interaction.reply('You do not have permission to use this command.');
             }
