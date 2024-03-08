@@ -43,10 +43,10 @@ module.exports = {
     async execute(interaction) {
         const modal = new ModalBuilder().setCustomId('standupModal').setTitle('Daily Standup');
 
-        ['yesterday', 'today', 'blockers'].forEach((id) => {
+        ['What did you do Yesterday?', 'What will you do today?', 'Do you have any blockers?'].forEach((id) => {
             modal.addComponents(
                 new ActionRowBuilder().addComponents(
-                    createTextInput(`${id}Input`, `What did you do ${id}?`, `e.g. Had a sprint planning meeting`),
+                    createTextInput(`${id}Input`, `${id}?`, ` `),
                 ),
             );
         });
