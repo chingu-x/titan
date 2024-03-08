@@ -35,28 +35,30 @@ module.exports = {
                     // Send the embed to all channels in the category
                     channels.each(async channel => {
                         if (channel.type === 0) {
-                            if (header) {
-                                await channel.send({ content: header, embeds: [embed] });
-                            } else {
-                                await channel.send({ embeds: [embed] });
-                            }
-
+                          if (header) {
+                            await channel.send({ content: header, embeds: [embed] });
+                          } else {
+                            await channel.send({ embeds: [embed] });
+                          }
                         } else if (channel.type === 15) {
-                            channel.threads.fetch().then(fetchedThreads => {
-                                fetchedThreads.threads.each(thread => {
-                                    if (thread.name === 'Welcome to your team channel') {
-                                        if (header) {
-                                            thread.send({ content: header, embeds: [embed] });
-                                        } else {
-                                            thread.send({ embeds: [embed] });
-                                        }
-                                    }
-                                });
-                            }).catch(console.error);
+                          channel.threads.fetch().then(fetchedThreads => {
+                            fetchedThreads.threads.each(thread => {
+                              if (thread.name === 'Welcome to your team channel') {
+                                if (header) {
+                                  thread.send({ content: header, embeds: [embed] });
+                                } else {
+                                  thread.send({ embeds: [embed] });
+                                }
+                              }
+                            });
+                          }).catch(console.error);
                         }
-                    });
-
-                    await interaction.reply('Message broadcasted successfully.');
+                      });
+                      
+                      await interaction.reply({ 
+                        content: `Message broadcasted successfully to category <#${categoryId}>.`,
+                        embeds: [embed]
+                      });
                 } else {
                     await interaction.reply('Invalid category ID.');
                 }

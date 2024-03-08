@@ -44,9 +44,10 @@ module.exports = {
         const modal = new ModalBuilder().setCustomId('standupModal').setTitle('Daily Standup');
 
         ['yesterday', 'today', 'blockers'].forEach((id) => {
+            const label = id === 'yesterday' ? 'What did you do Yesterday?' : id === 'today' ? 'What will you do today?' : 'Do you have any blockers?';
             modal.addComponents(
                 new ActionRowBuilder().addComponents(
-                    createTextInput(`${id}Input`, `What did you do ${id}?`, `e.g. Had a sprint planning meeting`),
+                    createTextInput(`${id}Input`, label, ` `),
                 ),
             );
         });
