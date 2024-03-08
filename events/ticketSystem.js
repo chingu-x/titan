@@ -81,6 +81,10 @@ module.exports = {
 
                 // Send the message to the user who sent the message in the thread
                 user.send(`**Message from ${message.author} regarding your ticket:**\n\n${replyMessage}\n`)
+                    .then(() => {
+                        // React to the message with an email emoji
+                        message.react('📧');
+                    })
                     .catch(error => console.error(`Failed to send message to user: ${error}`));
             }
 
