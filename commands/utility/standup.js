@@ -23,7 +23,7 @@ const createResponseEmbed = (interaction, yesterday, today, blockers) => {
     const name = interaction.user.globalName || interaction.user.username;
     return new EmbedBuilder()
         .setColor('#6DE194')
-        .setTitle('Daily Standup')
+        .setTitle(`Daily Standup - ${name}`)
         .addFields(
             { name: 'Yesterday:', value: yesterday },
             { name: 'Today:', value: today },
