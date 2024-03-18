@@ -5,6 +5,7 @@ require('dotenv').config();
 const openTicketChannel = process.env.OPEN_TICKET_CHANNEL_ID; // Tester Open ticket channel ID
 const tempVoiceID = process.env.TEMP_VOICE_ID; // Tester Temp voice text channel ID
 const createMenu = require('./tempVoice.js');
+const buttonCreate = require('./formSubmission.js');
 
 module.exports = {
     name: Events.ClientReady,
@@ -58,5 +59,14 @@ module.exports = {
 
         // Call the function inside the execute function
         await sendButtonMessage(client, openTicketChannel);
+
+        // Get the channel
+        const channel = client.channels.cache.get('1216665754192318534');
+
+        // Call the execute method for the first button
+        buttonCreate.execute(channel, 'Application', 'https://discordoauthserver-production.up.railway.app/auth/discord');
+
+        // // Call the execute method for the second button
+        // buttonCreate.execute(channel, 'GitHub', 'https://github.com');
     }, 
 };
