@@ -1,3 +1,3 @@
-const nextVoyage = 49
+const nextVoyage = 50
 
 module.exports = {nextVoyage}
