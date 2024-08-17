@@ -27,7 +27,7 @@ async function getCurrentVoyage() {
             } else {
                 currentVoyage = voyage.fields['Name'];
             }
-            console.log(`Current Voyage determined: ${currentVoyage}`);
+            console.log(`Next Voyage determined: ${currentVoyage}`);
             break;
         }
     }
@@ -80,22 +80,29 @@ module.exports = {
                 fields: ['Discord Name', 'Email', 'Commitment Form Completed', 'Tier', 'Voyage']
             }).firstPage();
 
+            let isSignedUpForCurrentVoyage = false;
             let voyageSignupData = null;
             if (voyageSignups.length > 0) {
-                const voyageSignup = voyageSignups[0];
-                voyageSignupData = voyageSignup.fields;
+                for (const voyageSignup of voyageSignups) {
+                    if (voyageSignup.fields['Voyage'] === currentVoyage || voyageSignup.fields['Voyage'].trim().toLowerCase() === "v??") {
+                        voyageSignupData = voyageSignup.fields;
+                        isSignedUpForCurrentVoyage = true;
+                        break;
+                    }
+                }
             }
 
             // User signup for next voyage
-            const nextVoyageSignupText = voyageSignups.length!==0?
-                voyageSignupData["Voyage"] === "V??"?`Pending`:
-                `Yes (${voyageSignups[0].fields['Tier'].slice(0,6)}) <a:check:1209501960139702363>`:
-                'No :x: [Click Here to Signup](https://forms.gle/DajSfXQCX4qbMAu8A)'
-                
-            const commitmentFormText = voyageSignups.length===0? 'N/A':
-                voyageSignups[0]?.fields['Commitment Form Completed'] === 'Yes'?
-                    'Yes <a:check:1209501960139702363>':
-                    'No :x: [Fill out Commitment Form](https://forms.gle/p5bhpoKFVBatQhnCA)'
+            const nextVoyageSignupText = isSignedUpForCurrentVoyage ?
+                voyageSignupData["Voyage"] === "V??" ? `Pending` :
+                `Yes (${voyageSignupData['Tier'].slice(0,6)}) <a:check:1209501960139702363>` :
+                'No :x: [Click Here to Signup](https://forms.gle/DajSfXQCX4qbMAu8A)';
+
+            const commitmentFormText = isSignedUpForCurrentVoyage ?
+                voyageSignupData['Commitment Form Completed'] === 'Yes' ?
+                    'Yes <a:check:1209501960139702363>' :
+                    'No :x: [Fill out Commitment Form](https://forms.gle/p5bhpoKFVBatQhnCA)' :
+                'N/A';
 
             // Fetch the user's solo project from Airtable
             const soloProjects = await base('Solo Projects').select({
