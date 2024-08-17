@@ -20,6 +20,12 @@ module.exports = {
 
         await dmChannel.send({ embeds: [ticketChannelEmbed] });
 
+        // Send a follow-up message with the link to the DM
+        await interaction.followUp({
+            content: `Please open the DM that was sent by <@${interaction.client.user.id}> and type why you're contacting us today. We'll be with you shortly. [Click here to view the DM](https://discord.com/channels/@me/${dmChannel.id})`,
+            ephemeral: true
+        });
+
         // Delete the "Processing..." message
         await interaction.deleteReply();
     },
