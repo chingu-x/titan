@@ -87,12 +87,15 @@ module.exports = {
             }
 
             // User signup for next voyage
-            const nextVoyageSignupText = voyageSignups.length !== 0 ?
-                voyageSignupData["Voyage"] === "V??" ? `Pending` :
-                    `Yes (${voyageSignups[0].fields['Tier'].slice(0, 6)}) <a:check:1209501960139702363>` :
-                'No :x:';
-            const commitmentFormText = voyageSignups.length === 0 ? 'N/A' :
-                voyageSignups[0]?.fields['Commitment Form Completed'] === 'Yes' ? 'Yes <a:check:1209501960139702363>' : 'No :x:';
+            const nextVoyageSignupText = voyageSignups.length!==0?
+                voyageSignupData["Voyage"] === "V??"?`Pending`:
+                `Yes (${voyageSignups[0].fields['Tier'].slice(0,6)}) <a:check:1209501960139702363>`:
+                'No :x: [Click Here to Signup](https://forms.gle/DajSfXQCX4qbMAu8A)'
+                
+            const commitmentFormText = voyageSignups.length===0? 'N/A':
+                voyageSignups[0]?.fields['Commitment Form Completed'] === 'Yes'?
+                    'Yes <a:check:1209501960139702363>':
+                    'No :x: [Fill out Commitment Form](https://forms.gle/p5bhpoKFVBatQhnCA)'
 
             // Fetch the user's solo project from Airtable
             const soloProjects = await base('Solo Projects').select({
@@ -162,7 +165,7 @@ module.exports = {
                 ephemeral: true // Make the message visible only to the user who triggered the command
             });
         } catch (error) {
-            console.error(error);
+            console.error('An error occurred while trying to fetch user information:', error.message);
             await interaction.reply({ content: 'An error occurred while trying to fetch user information.', ephemeral: true });
         }
     },
