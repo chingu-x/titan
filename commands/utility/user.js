@@ -104,7 +104,6 @@ module.exports = {
             }).firstPage();
 
             let soloProjectData = null;
-            let githubId = 'N/A';
             let soloProjectTier = 'N/A';
             if (soloProjects.length > 0) {
                 const soloProject = soloProjects[0];
