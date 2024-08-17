@@ -92,7 +92,7 @@ module.exports = {
             let voyageSignupData = null;
             if (voyageSignups.length > 0) {
                 for (const voyageSignup of voyageSignups) {
-                    if (voyageSignup.fields['Voyage'] === currentVoyage || voyageSignup.fields['Voyage'].trim().toLowerCase() === "v??") {
+                    if (voyageSignup.fields['Voyage'] === currentVoyage || voyageSignup.fields['Voyage'] === "V??") {
                         voyageSignupData = voyageSignup.fields;
                         isSignedUpForCurrentVoyage = true;
                         break;
@@ -102,7 +102,7 @@ module.exports = {
 
             // User signup for next voyage
             const nextVoyageSignupText = isSignedUpForCurrentVoyage ?
-                voyageSignupData["Voyage"] === "V??" ? `Pending` :
+                voyageSignupData["Voyage"] === "V??" ? `Pending <a:LoadingEmoji:1274376308327190549> ` :
                 `Yes (${voyageSignupData['Tier'].slice(0,6)}) <a:check:1209501960139702363>` :
                 'No :x:';
 
