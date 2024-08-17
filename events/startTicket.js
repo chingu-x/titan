@@ -14,8 +14,8 @@ module.exports = {
 
         const ticketChannelEmbed = new EmbedBuilder()
             .setColor('#6DE194')
-            .setTitle('Are you sure that you want to open a ticket?')
-            .setDescription('If you have any issues, questions or concerns, please write it here and we will get back to you shortly.')
+            .setTitle('Chingu Support Ticket')
+            .setDescription("Please tell us why you have contacted us today, an Admin will be with you as soon as you have postet you message and we've read your it, if you accidentally clicked the button, just ignore this.")
             .setThumbnail('https://imgur.com/EII19bn.png');
 
         await dmChannel.send({ embeds: [ticketChannelEmbed] });
