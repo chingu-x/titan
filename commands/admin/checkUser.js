@@ -61,6 +61,7 @@ module.exports = {
         const discordId = interaction.options.getString('discordid');
 
         try {
+            await interaction.deferReply({ ephemeral: true });
             // Fetch the user object using the Discord ID
             const user = await interaction.client.users.fetch(discordId);
             const username = user.username;
@@ -76,7 +77,7 @@ module.exports = {
 
             // If no application data is found, return immediately
             if (applications.length === 0) {
-                return await interaction.reply({ content: `No additional information found for ${username}.`, ephemeral: true });
+                return await interaction.editReply({ content: `No additional information found for ${username}.`, ephemeral: true });
             }
 
             const application = applications[0];
@@ -174,13 +175,17 @@ module.exports = {
                 .setThumbnail('https://imgur.com/EII19bn.png');
 
             // Reply with the user's information in an embed message
-            await interaction.reply({
+            await interaction.editReply({
                 content: `User Information for <@${discordId}>`,
                 embeds: [embed]
             });
         } catch (error) {
             console.error(error);
-            await interaction.reply({ content: 'An error occurred while trying to fetch user information.', ephemeral: true });
+            if (interaction.deferred || interaction.replied) {
+                await interaction.editReply({ content: 'An error occurred while trying to fetch user information.', ephemeral: true });
+            } else {
+                await interaction.reply({ content: 'An error occurred while trying to fetch user information.', ephemeral: true });
+            }
         }
     },
 };
