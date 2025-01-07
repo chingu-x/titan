@@ -67,6 +67,14 @@ async function createMenu(client, categoryIds, channelId) {
     // Fetch the messages in the channel
     const messages = await channel.messages.fetch();
 
+    // Check if there is already a message from the bot
+    const botMessage = messages.find(message => message.author.id === client.user.id);
+
+    if (botMessage) {
+        console.log('Bot message already exists in the create voice channel.');
+        return;
+    }
+
     // If there are any messages, delete them
     if (messages.size > 0) {
         await channel.bulkDelete(messages);

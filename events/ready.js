@@ -30,7 +30,7 @@ module.exports = {
             // Check if there is already a message from the bot
             const botMessage = fetched.find(message => message.author.id === client.user.id);
             if (botMessage) {
-                console.log('Bot message already exists in the channel.');
+                console.log('Bot message already exists in the ticket channel.');
                 return;
             }
 
