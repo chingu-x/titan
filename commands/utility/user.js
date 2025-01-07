@@ -36,7 +36,6 @@ async function getCurrentAndNextVoyage() {
             break;
         }
     }
-
     return { currentVoyage, nextVoyage };
 }
 

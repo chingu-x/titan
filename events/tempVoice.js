@@ -93,7 +93,6 @@ async function createMenu(client, categoryIds, channelId) {
         // Get the text channel from the guild
         const textChannel = interaction.guild.channels.cache.get(textChannelId);
 
-        // If the text channel is not found or it's not a text channel, log an error and return
         // If the text channel is not found or it's not a text channel or a thread channel, log an error and return
         if (!textChannel || (textChannel.type !== 0 && textChannel.type !== 15)) {
             console.log(`Channel with ID ${textChannelId} not found or not a text or thread channel`);
@@ -110,7 +109,7 @@ async function createMenu(client, categoryIds, channelId) {
         // If an existing voice channel is found, send a message to the user and return
         if (existingVoiceChannel) {
             await interaction.editReply({ content: `A voice channel for ${textChannel.name} already exists.`});
-            await interaction.followUp({ content: `Here is the link to the voice channel: discord://discordapp.com/channels/${interaction.guild.id}/${existingVoiceChannel.id}`, ephemeral: true });
+            await interaction.followUp({ content: `**Here is the link to the voice channel:** discord://discordapp.com/channels/${interaction.guild.id}/${existingVoiceChannel.id}`, ephemeral: true });
             
             const categoryId = interaction.customId.split('-')[1];
             const row = rows.find(row => row.components[0].customId === `menu-${categoryId}`);
@@ -138,7 +137,7 @@ async function createMenu(client, categoryIds, channelId) {
             await interaction.editReply({ content: `Created your voice channel: ${voiceChannel.name}`, ephemeral: true });
 
             // Send a follow-up message with the link to the voice channel
-            await interaction.followUp({ content: `Here is the link to the voice channel: discord://discordapp.com/channels/${interaction.guild.id}/${voiceChannel.id}`, ephemeral: true });
+            await interaction.followUp({ content: `A team voice channel has been created for your team\n**Copy this whole link and paste it in your team channel to help the rest of your team to locate it:** discord://discordapp.com/channels/${interaction.guild.id}/${voiceChannel.id}`, ephemeral: true });
 
             // Set a timer to check the voice channel's members every minute
             const checkInterval = setInterval(async () => {

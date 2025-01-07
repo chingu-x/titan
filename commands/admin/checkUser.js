@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField } = require('discord.js');
 const Airtable = require('airtable');
 require('dotenv').config();
 
@@ -42,17 +42,16 @@ async function getCurrentAndNextVoyage() {
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('usercheck')
+        .setName('checkuser')
         .setDescription('Provides information about a user.')
         .addStringOption(option =>
             option.setName('discordid')
-                .setDescription('The users Discord ID.')
+                .setDescription('The user\'s Discord ID.')
                 .setRequired(true)),
     async execute(interaction) {
-        // Check if the command is used in the specific channels
-        const allowedChannels = ['1195050183403262053', '1194954848089673728'];
-        if (!allowedChannels.includes(interaction.channelId)) {
-            return await interaction.reply({ content: 'You can only use this command in specific channels.', ephemeral: true });
+        // Check if the user has the administrator permission
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return await interaction.reply({ content: 'You do not have permission to use this command.', ephemeral: true });
         }
 
         // Get the Discord ID from the command argument
@@ -88,6 +87,7 @@ module.exports = {
             // Fetch the user's voyage signups from Airtable
             const voyageSignups = await base('Voyage Signups').select({
                 filterByFormula: `{Discord ID} = '${discordId}'`,
+
                 fields: ['Discord Name', 'Email', 'Commitment Form Completed', 'Tier', 'Voyage', 'Team Name', 'Team No.', 'Role']
             }).firstPage();
 
@@ -244,6 +244,7 @@ module.exports = {
             } else {
                 await interaction.reply({ content: 'An error occurred while trying to fetch your information.', ephemeral: true });
             }
+
         }
     },
 };
