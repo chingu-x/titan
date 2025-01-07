@@ -42,7 +42,7 @@ async function getCurrentAndNextVoyage() {
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('checkuser')
+        .setName('usercheck')
         .setDescription('Provides information about a user.')
         .addStringOption(option =>
             option.setName('discordid')
