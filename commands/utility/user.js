@@ -5,44 +5,38 @@ require('dotenv').config();
 // Initialize Airtable
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE);
 
-async function getCurrentVoyage() {
+async function getVoyages() {
     const voyages = await base('Schedules').select({
         view: 'Voyages',
-        fields: ['Name', 'Start Date', 'End Date'],
-        maxRecords: 3
+        fields: ['Name', 'Start Date', 'End Date']
     }).firstPage();
 
-    const currentDate = new Date();
-    let currentVoyage = null;
+    return voyages.map(voyage => ({
+        number: voyage.fields['Name'],
+        startDate: new Date(voyage.fields['Start Date']),
+        endDate: new Date(voyage.fields['End Date'])
+    })).filter(voyage => voyage.number !== 'V999').sort((a, b) => a.startDate - b.startDate);
+}
 
-    // console.log(`Current Date: ${currentDate}`);
+async function getCurrentAndNextVoyage() {
+    const voyages = await getVoyages();
+    const currentDate = new Date();
+    
+    let currentVoyage = null;
+    let nextVoyage = null;
 
     for (let i = 0; i < voyages.length; i++) {
         const voyage = voyages[i];
-        const startDate = new Date(voyage.fields['Start Date']);
-
-        if (currentDate >= startDate) {
-            if (i > 0) {
-                currentVoyage = voyages[i - 1].fields['Name'];
-            } else {
-                currentVoyage = voyage.fields['Name'];
-            }
-            // console.log(`Next Voyage determined: ${currentVoyage}`);
+        if (currentDate >= voyage.startDate && currentDate <= voyage.endDate) {
+            currentVoyage = voyage.number;
+            nextVoyage = voyages[i + 1] ? voyages[i + 1].number : null;
+            break;
+        } else if (currentDate < voyage.startDate) {
+            nextVoyage = voyage.number;
             break;
         }
     }
-
-    if (!currentVoyage && voyages.length > 0) {
-        // If all voyages are in the future, select the first voyage
-        currentVoyage = voyages[0].fields['Name'];
-        console.log(`All voyages are in the future. Current Voyage determined: ${currentVoyage}`);
-    }
-
-    if (!currentVoyage) {
-        console.log('Unable to determine the current voyage.');
-    }
-
-    return currentVoyage;
+    return { currentVoyage, nextVoyage };
 }
 
 module.exports = {
@@ -58,8 +52,8 @@ module.exports = {
             const user = await interaction.client.users.fetch(discordId);
             const username = user.username;
 
-            // Fetch the current voyage
-            const currentVoyage = await getCurrentVoyage();
+            // Fetch the current and next voyage
+            const {currentVoyage, nextVoyage} = await getCurrentAndNextVoyage();
 
             // Fetch the user's application from Airtable
             const applications = await base('Applications').select({
@@ -78,29 +72,48 @@ module.exports = {
             // Fetch the user's voyage signups from Airtable
             const voyageSignups = await base('Voyage Signups').select({
                 filterByFormula: `{Discord ID} = '${discordId}'`,
-                fields: ['Discord Name', 'Email', 'Commitment Form Completed', 'Tier', 'Voyage']
+                fields: ['Discord Name', 'Email', 'Commitment Form Completed', 'Tier', 'Voyage', 'Team Name', 'Team No.', 'Role']
             }).firstPage();
 
+            let isSignedUpForNextVoyage = false;
             let isSignedUpForCurrentVoyage = false;
-            let voyageSignupData = null;
+            let currentVoyageSignupData = null;
+            let nextVoyageSignupData = null;
+
             if (voyageSignups.length > 0) {
-                for (const voyageSignup of voyageSignups) {
-                    if (voyageSignup.fields['Voyage'] === currentVoyage || voyageSignup.fields['Voyage'] === "V??") {
-                        voyageSignupData = voyageSignup.fields;
-                        isSignedUpForCurrentVoyage = true;
-                        break;
+                    for (const voyageSignup of voyageSignups) {
+                        if (voyageSignup.fields['Voyage'] === currentVoyage) {
+                            currentVoyageSignupData = voyageSignup.fields;
+                            isSignedUpForCurrentVoyage = true;
+                        }
+                        if (voyageSignup.fields['Voyage'] === nextVoyage || voyageSignup.fields['Voyage'] === "V??") {
+                            nextVoyageSignupData = voyageSignup.fields;
+                            isSignedUpForNextVoyage = true;
+                        }
                     }
                 }
-            }
 
-            // User signup for next voyage
-            const nextVoyageSignupText = isSignedUpForCurrentVoyage ?
-                voyageSignupData["Voyage"] === "V??" ? `Pending <a:LoadingEmoji:1274376308327190549> ` :
-                `Yes (${voyageSignupData['Tier'].slice(0,6)}) <a:check:1209501960139702363>` :
+            // User is signed up for current voyage
+            const currentVoyageSignupText = isSignedUpForCurrentVoyage ?
+            `You are particapating` :
+            'You are not particapating';
+
+            // Current voyage signup tier and team
+            const currentVoyageSignupTierTeam = isSignedUpForCurrentVoyage ?
+            `${currentVoyageSignupData['Team Name']}, Team ${currentVoyageSignupData['Team No.']}` :
+            'N/A';
+
+            const currentVoyageSignupRole = isSignedUpForCurrentVoyage ?
+            `${currentVoyageSignupData['Role']}` : 'N/A';
+
+            // User is signed up for next voyage
+            const nextVoyageSignupText = isSignedUpForNextVoyage ?
+                nextVoyageSignupData["Voyage"] === "V??" ? `Pending <a:LoadingEmoji:1274376308327190549> ` :
+                `Yes (${nextVoyageSignupData['Tier'].slice(0,6)}) <a:check:1209501960139702363>` :
                 'No :x: [Click Here to Signup](https://forms.gle/DajSfXQCX4qbMAu8A)';
 
-            const commitmentFormText = isSignedUpForCurrentVoyage ?
-                voyageSignupData['Commitment Form Completed'] === 'Yes' ?
+            const commitmentFormText = isSignedUpForNextVoyage ?
+                nextVoyageSignupData['Commitment Form Completed'] === 'Yes' ?
                     'Yes <a:check:1209501960139702363>' :
                     'No :x: [Fill out Commitment Form](https://forms.gle/p5bhpoKFVBatQhnCA)' :
                 'N/A';
@@ -121,8 +134,38 @@ module.exports = {
             }
 
             // Check if the Discord name and email match in both tables
-            const isDiscordNameMatch = applicationData && voyageSignupData && applicationData['Discord Name'] === voyageSignupData['Discord Name'] ? 'Match <a:check:1209501960139702363>' : (applicationData && voyageSignupData ? 'Mismatch :x:' : 'N/A');
-            const isEmailMatch = applicationData && voyageSignupData && applicationData['Email'] === voyageSignupData['Email'] ? 'Match <a:check:1209501960139702363>' : (applicationData && voyageSignupData ? 'Mismatch :x:' : 'N/A');
+            let discordNameMatch = true;
+            let emailMatch = true;
+
+            if (currentVoyageSignupData) {
+                if (applicationData['Discord Name'] !== currentVoyageSignupData['Discord Name']) {
+                    discordNameMatch = false;
+                }
+                if (applicationData['Email'] !== currentVoyageSignupData['Email']) {
+                    emailMatch = false;
+                }
+            }
+
+            if (nextVoyageSignupData) {
+                if (applicationData['Discord Name'] !== nextVoyageSignupData['Discord Name']) {
+                    discordNameMatch = false;
+                }
+                if (applicationData['Email'] !== nextVoyageSignupData['Email']) {
+                    emailMatch = false;
+                }
+            }
+
+            const isDiscordNameMatch = discordNameMatch ? 'Match <a:check:1209501960139702363>' : (
+                currentVoyageSignupData && applicationData['Discord Name'] !== currentVoyageSignupData['Discord Name'] ? 
+                `Mismatch :x: (Current Voyage)` : 
+                `Mismatch :x: (Next Voyage)`
+            );
+
+            const isEmailMatch = emailMatch ? 'Match <a:check:1209501960139702363>' : (
+                currentVoyageSignupData && applicationData['Email'] !== currentVoyageSignupData['Email'] ? 
+                `Mismatch :x: (Current Voyage)` : 
+                `Mismatch :x: (Next Voyage)`
+            );
 
             let evaluationStatus = applicationData['Evaluation Status (from Solo Project Link)'];
             if (Array.isArray(evaluationStatus)) {
@@ -160,8 +203,14 @@ module.exports = {
                     { name: '\u200B', value: '\u200B' },
                 )
                 .addFields(
-                    { name: `Signed up for ${currentVoyage}?`, value: nextVoyageSignupText, inline: true },
-                    { name: `Commitment Form for ${currentVoyage}?`, value: commitmentFormText, inline: true }
+                    { name: `Current Voyage is ${currentVoyage}`, value: currentVoyageSignupText, inline: true },
+                    { name: `Tier and Team`, value: currentVoyageSignupTierTeam, inline: true },
+                    { name: `Role`, value: currentVoyageSignupRole, inline: true },
+                    { name: '\u200B', value: '\u200B' },
+                )
+                .addFields(
+                    { name: `Signed up for ${nextVoyage}?`, value: nextVoyageSignupText, inline: true },
+                    { name: `Commitment Form for ${nextVoyage}?`, value: commitmentFormText, inline: true }
                 )
                 .setThumbnail('https://imgur.com/EII19bn.png');
 

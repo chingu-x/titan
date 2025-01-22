@@ -26,8 +26,8 @@ const handleError = async (interaction, error) => {
     }
 };
 
-const createResponseEmbed = (interaction, yesterday, today, blockers) => {
-    const name = interaction.user.globalName || interaction.user.username;
+const createResponseEmbed = (user, yesterday, today, blockers) => {
+    const name = user.globalName || user.username;
     return new EmbedBuilder()
         .setColor('#6DE194')
         .setTitle(`Daily Standup - ${name}`)
@@ -38,7 +38,7 @@ const createResponseEmbed = (interaction, yesterday, today, blockers) => {
         )
         .setFooter({
             text: `standup by ${name}`,
-            iconURL: interaction.user.displayAvatarURL(),
+            iconURL: user.displayAvatarURL(),
         })
         .setTimestamp();
 };
@@ -62,7 +62,7 @@ module.exports = {
 
             await interaction.showModal(modal);
 
-            const filter = (interaction) => interaction.customId === 'standupModal';
+            const filter = (modalInteraction) => modalInteraction.customId === 'standupModal';
 
             try {
                 const modalInteraction = await interaction.awaitModalSubmit({ filter, time: 870000 }); // 14.5 minutes
@@ -75,7 +75,7 @@ module.exports = {
                     throw new Error('Please fill out all required fields.');
                 }
 
-                const response = createResponseEmbed(interaction, yesterday, today, blockers);
+                const response = createResponseEmbed(modalInteraction.user, yesterday, today, blockers);
                 await modalInteraction.reply({ embeds: [response] });
             } catch (error) {
                 if (error.code === 'InteractionCollectorError') {
