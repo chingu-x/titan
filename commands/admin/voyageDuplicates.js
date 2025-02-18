@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const Airtable = require("airtable");
-const {nextVoyage} = require("../../utils/constants");
+const { getNextVoyage, nextVoyageNumber} = require("../../utils/constants.js");
 require('dotenv').config();
 
 const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE);
@@ -18,8 +18,14 @@ module.exports = {
 
         try{
             if (interaction.member.permissions.has('ADMINISTRATOR')){
+                const nextVoyage = nextVoyageNumber || await getNextVoyage();
+
+                if (!nextVoyage) {
+                    return await interaction.reply({ content: 'No next voyage found.', ephemeral: true });
+                }
+
                 const voyageSignups = await base('Voyage Signups').select({
-                    filterByFormula: `Voyage = "V${nextVoyage}"`,
+                    filterByFormula: `Voyage = "${nextVoyage}"`,
                     fields: ['Email']
                 }).all();
 
@@ -29,7 +35,7 @@ module.exports = {
                 const countsArray = Array.from(countsMap, ([email, signups]) => ({email, signups}))
                 const duplicates = countsArray.filter(e=>e.signups>1)
 
-                let duplicatesMessage = `Duplicate Signups (V${nextVoyage}) - ${countsMap.size} unique\n${duplicates.length} duplicates:\n`;
+                let duplicatesMessage = `Duplicate Signups (${nextVoyage}) - ${countsMap.size} unique\n${duplicates.length} duplicates:\n`;
                 duplicates.forEach(duplicate => {
                     duplicatesMessage += `Email: ${duplicate.email}, Signups: ${duplicate.signups}\n`;
                 });

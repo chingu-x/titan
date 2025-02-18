@@ -229,4 +229,5 @@ module.exports = {
             }
         }
     },
+    getCurrentAndNextVoyage
 };
