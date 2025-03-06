@@ -1,4 +1,5 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, Events, EmbedBuilder } = require('discord.js');
+const { ActionRowBuilder, Events, EmbedBuilder } = require('discord.js');
+const { createTicketButton } = require('../handlers/buttons.js');
 require('dotenv').config();
 // const openTicketChannel = '1193342042080817323'; // Chingu Open ticket channel ID
 // const tempVoiceID = '1194571625337724960'; // Chingu Temp voice text channel ID
@@ -42,15 +43,11 @@ module.exports = {
                 }
             });
         
-            // Create the initial button
-            const button = new ButtonBuilder()
-                .setCustomId('ticket_button')
-                .setLabel('📩 Create ticket')
-                .setStyle(ButtonStyle.Success);
+            const ticketButton = createTicketButton();
         
             // Create an action row and add the button to it
             const row = new ActionRowBuilder()
-                .addComponents(button);
+                .addComponents(ticketButton);
 
             // Create an embed
             const welcomeEmbed = new EmbedBuilder()
