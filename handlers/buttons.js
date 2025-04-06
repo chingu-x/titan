@@ -2,37 +2,72 @@ const { ButtonBuilder, ButtonStyle } = require('discord.js');
 
 function createApplicationButton() {
     return new ButtonBuilder()
-    .setCustomId('application_button')
-    .setLabel('📝 Application')
-    .setStyle(ButtonStyle.Primary);
+    .setLabel('Application Form')
+    .setStyle(ButtonStyle.Link)
+    .setURL('https://discordoauthserver-production.up.railway.app/auth/discord')
 }
 
 function createSoloProjectButton() {
     return new ButtonBuilder()
-    .setCustomId('solo_project_button')
-    .setLabel('💻 Submit Solo Project')
-    .setStyle(ButtonStyle.Primary);
+    .setLabel('Solo Project Form')
+    .setStyle(ButtonStyle.Link)
+    .setURL('https://forms.gle/your-solo-project-form-link');
 }
 
 function createVoyageSignupButton() {
     return new ButtonBuilder()
-    .setCustomId('voyage_signup_button')
-    .setLabel('🚀 Voyage Signup')
-    .setStyle(ButtonStyle.Primary);
+    .setLabel('Voyage Signup Form')
+    .setStyle(ButtonStyle.Link)
+    .setURL('https://forms.gle/your-voyage-signup-form-link');
 }
 
-function createCommitmentButton() {
+function createCommitmentYesButton() {
     return new ButtonBuilder()
-    .setCustomId('commitment_button')
-    .setLabel('📝 Commitment')
-    .setStyle(ButtonStyle.Primary);
+    .setCustomId('commitment_yes')
+    .setLabel('Yes')
+    .setStyle(ButtonStyle.Success);
+}
+
+function createCommitmentNoButton() {
+    return new ButtonBuilder()
+    .setCustomId('commitment_no')
+    .setLabel('No')
+    .setStyle(ButtonStyle.Danger);
 }
 
 function createTicketButton() {
     return new ButtonBuilder()
     .setCustomId('ticket_button')
-    .setLabel('📩 Create ticket')
+    .setLabel('📩 Open Support Ticket')
+    .setStyle(ButtonStyle.Primary);
+}
+
+function createYesButton() {
+    return new ButtonBuilder()
+    .setCustomId('yes_button')
+    .setLabel('Yes')
     .setStyle(ButtonStyle.Success);
+}
+
+function createNoButton() {
+    return new ButtonBuilder()
+    .setCustomId('no_button')
+    .setLabel('No')
+    .setStyle(ButtonStyle.Danger);
+}
+
+function createFinalYesButton() {
+    return new ButtonBuilder()
+    .setCustomId('final_commitment_yes')
+    .setLabel('Yes')
+    .setStyle(ButtonStyle.Success);
+}
+
+function createFinalNoButton() {
+    return new ButtonBuilder()
+    .setCustomId('final_commitment_no')
+    .setLabel('No')
+    .setStyle(ButtonStyle.Danger);
 }
 
 module.exports = { 
@@ -40,5 +75,10 @@ module.exports = {
     createApplicationButton,
     createSoloProjectButton,
     createVoyageSignupButton,
-    createCommitmentButton,
+    createCommitmentYesButton,
+    createCommitmentNoButton,
+    createYesButton,
+    createNoButton,
+    createFinalYesButton,
+    createFinalNoButton
 };
