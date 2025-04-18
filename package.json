@@ -7,11 +7,14 @@
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Ruben Ellefsen",
+  "author": "Ruben Nienhuis",
   "license": "ISC",
   "dependencies": {
     "airtable": "^0.12.2",
     "discord.js": "^14.14.1",
     "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
   }
 }

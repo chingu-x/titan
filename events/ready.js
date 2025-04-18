@@ -1,9 +1,11 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, Events, EmbedBuilder } = require('discord.js');
+const { ActionRowBuilder, Events, EmbedBuilder } = require('discord.js');
+const { createTicketButton } = require('../handlers/buttons.js');
+const { sendApplicationMessage } = require('../events/application.js');
 require('dotenv').config();
-// const openTicketChannel = '1193342042080817323'; // Chingu Open ticket channel ID
-// const tempVoiceID = '1194571625337724960'; // Chingu Temp voice text channel ID
-const openTicketChannel = process.env.OPEN_TICKET_CHANNEL_ID; // Tester Open ticket channel ID
-const tempVoiceID = process.env.TEMP_VOICE_ID; // Tester Temp voice text channel ID
+
+const applicationChannelId = process.env.APPLICATION_CHANNEL_ID;
+const openTicketChannel = process.env.OPEN_TICKET_CHANNEL_ID; 
+const tempVoiceID = process.env.TEMP_VOICE_ID; 
 const createMenu = require('./tempVoice.js');
 
 module.exports = {
@@ -17,6 +19,8 @@ module.exports = {
                 name: 'DM for help' }], 
 				status: 'online' 
 			});
+
+        await sendApplicationMessage(client, applicationChannelId);
             
         categoryIds = [process.env.CATEGORY_TIER_1_ID, process.env.CATEGORY_TIER_2_ID, process.env.CATEGORY_TIER_3_ID];
         await createMenu(client, categoryIds, tempVoiceID);
@@ -42,15 +46,11 @@ module.exports = {
                 }
             });
         
-            // Create the initial button
-            const button = new ButtonBuilder()
-                .setCustomId('ticket_button')
-                .setLabel('📩 Create ticket')
-                .setStyle(ButtonStyle.Success);
+            const ticketButton = createTicketButton();
         
             // Create an action row and add the button to it
             const row = new ActionRowBuilder()
-                .addComponents(button);
+                .addComponents(ticketButton);
 
             // Create an embed
             const welcomeEmbed = new EmbedBuilder()

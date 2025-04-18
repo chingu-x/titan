@@ -1,9 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField } = require('discord.js');
-const Airtable = require('airtable');
-require('dotenv').config();
+const { base } = require('../../handlers/airtable.js');
 
-// Initialize Airtable
-const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE);
 
 async function getVoyages() {
     const voyages = await base('Schedules').select({

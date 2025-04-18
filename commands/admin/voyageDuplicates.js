@@ -1,9 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
-const Airtable = require("airtable");
+const { base, adminChatID, adminTestID } = require("../../handlers/airtable.js");
 const { getNextVoyage, nextVoyageNumber} = require("../../utils/constants.js");
-require('dotenv').config();
 
-const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE);
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -11,7 +9,7 @@ module.exports = {
         .setDescription('Checks for duplicate signups for the next voyage'),
     async execute(interaction) {
         // Check if the command is used in the specific channels
-        const allowedChannels = [process.env.ADMIN_TEST_ID, process.env.ADMIN_CHAT_ID];
+        const allowedChannels = [adminChatID, adminTestID];
         if (!allowedChannels.includes(interaction.channelId)) {
             return await interaction.reply({ content: 'You can only use this command in specific channels.', ephemeral: true });
         }
