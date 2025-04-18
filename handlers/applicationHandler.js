@@ -29,12 +29,13 @@ async function handleApplicationButton(interaction) {
                 .setColor('#FF0000')
                 .setTitle('No Application Found')
                 .setDescription(
-                    'It seems like you haven’t filled out the application form yet. Please complete the application to proceed.'
+                    'It seems like you haven’t filled out the **Application** form yet. Please complete the **Application** to proceed.\n*If you think you have already filled the **Application** form, please open a support ticket*'
                 );
 
             const applicationButton = createApplicationButton();
+            const ticketButton = createTicketButton();
 
-            const row = new ActionRowBuilder().addComponents(applicationButton);
+            const row = new ActionRowBuilder().addComponents(applicationButton, ticketButton);
 
             await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
             return;
@@ -55,11 +56,12 @@ async function handleApplicationButton(interaction) {
             const embed = new EmbedBuilder()
                 .setColor('#6DE194')
                 .setTitle('Solo Project Submission')
-                .setDescription('You’ve completed the application form! Now, submit your solo project to proceed.');
+                .setDescription('You’ve completed the **Application** form! Now, submit your solo project to proceed.\n*If you think you have already submitted a **Solo Project**, please open a support ticket*');
 
             const soloProjectButton = createSoloProjectButton();
+            const ticketButton = createTicketButton();
 
-            const row = new ActionRowBuilder().addComponents(soloProjectButton);
+            const row = new ActionRowBuilder().addComponents(soloProjectButton, ticketButton);
 
             await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
             return;
@@ -84,7 +86,7 @@ async function handleApplicationButton(interaction) {
                 .setColor('#6DE194')
                 .setTitle('Requested Changes')
                 .setDescription(
-                    'Your solo project requires changes. Please make the requested changes and resubmit your project.\n\n' +
+                    'Your Solo Project requires changes. Please make the requested changes and resubmit your project.\n\n' +
                     'If you need help, feel free to open a support ticket.'
                 );
 
@@ -136,11 +138,12 @@ async function handleApplicationButton(interaction) {
             const embed = new EmbedBuilder()
                 .setColor('#6DE194')
                 .setTitle('Voyage Signup')
-                .setDescription('You are not signed up for the next voyage. Please sign up to proceed.');
+                .setDescription('You are not signed up for the next voyage. Please sign up to proceed.\n*If you think you have already signed up for the next **Voyage**, please open a support ticket*');
 
             const voyageSignupButton = createVoyageSignupButton();
+            const ticketButton = createTicketButton();
 
-            const row = new ActionRowBuilder().addComponents(voyageSignupButton);
+            const row = new ActionRowBuilder().addComponents(voyageSignupButton, ticketButton);
 
             await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
             return;
