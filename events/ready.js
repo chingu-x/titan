@@ -1,6 +1,6 @@
 const { ActionRowBuilder, Events, EmbedBuilder } = require('discord.js');
 const { createTicketButton } = require('../handlers/buttons.js');
-const { sendApplicationMessage } = require('../events/application.js');
+const { sendOnboardingMessage } = require('../events/application.js');
 require('dotenv').config();
 
 const applicationChannelId = process.env.APPLICATION_CHANNEL_ID;
@@ -20,7 +20,7 @@ module.exports = {
 				status: 'online' 
 			});
 
-        await sendApplicationMessage(client, applicationChannelId);
+        await sendOnboardingMessage(client, applicationChannelId);
             
         categoryIds = [process.env.CATEGORY_TIER_1_ID, process.env.CATEGORY_TIER_2_ID, process.env.CATEGORY_TIER_3_ID];
         await createMenu(client, categoryIds, tempVoiceID);
