@@ -1,7 +1,7 @@
 const { EmbedBuilder, ActionRowBuilder } = require('discord.js');
-const { createApplicationButton } = require('../handlers/buttons.js');
+const { createChinguOnboardingButton } = require('../handlers/buttons.js');
 
-async function sendApplicationMessage(client, channelId) {
+async function sendOnboardingMessage(client, channelId) {
     const channel = client.channels.cache.get(channelId);
 
     if (!channel) {
@@ -15,7 +15,7 @@ async function sendApplicationMessage(client, channelId) {
         const botMessage = fetchedMessages.find(message => message.author.id === client.user.id);
 
         if (botMessage) {
-            console.log('Application message already exists in the channel.');
+            console.log('Onboarding message already exists in the channel.');
             return;
         }
 
@@ -24,7 +24,7 @@ async function sendApplicationMessage(client, channelId) {
             .setColor('#6DE194')
             .setTitle('Application Process')
             .setDescription(
-                'Welcome to the application process! Click the button below to start or check your progress.\n\n' +
+                'Welcome to the Chingu Onboarding process! Click the button below to start or check your current status.\n\n' +
                 '**Steps:**\n' +
                 '1. Fill out the application form.\n' +
                 '2. Submit your solo project.\n' +
@@ -33,15 +33,15 @@ async function sendApplicationMessage(client, channelId) {
             )
             .setThumbnail('https://imgur.com/EII19bn.png');
 
-        const applicationButton = createApplicationButton();
-        const row = new ActionRowBuilder().addComponents(applicationButton);
+        const chinguOnboardingButton = createChinguOnboardingButton();
+        const row = new ActionRowBuilder().addComponents(chinguOnboardingButton);
 
         // Send the message
         await channel.send({ embeds: [embed], components: [row] });
-        console.log('Application message sent successfully.');
+        console.log('Onboarding message sent successfully.');
     } catch (error) {
-        console.error('Failed to send application message:', error);
+        console.error('Failed to send onboarding message:', error);
     }
 }
 
-module.exports = { sendApplicationMessage };
+module.exports = { sendOnboardingMessage };

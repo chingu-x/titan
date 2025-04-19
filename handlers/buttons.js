@@ -7,6 +7,13 @@ function createApplicationButton() {
     .setURL('https://discordoauthserver-production.up.railway.app/auth/discord')
 }
 
+function createChinguOnboardingButton() {
+    return new ButtonBuilder()
+    .setCustomId('chingu_onboarding_button')
+    .setLabel('📝 Chingu Onboarding')
+    .setStyle(ButtonStyle.Primary);
+}
+
 function createSoloProjectButton() {
     return new ButtonBuilder()
     .setLabel('Solo Project Form')
@@ -71,14 +78,15 @@ function createFinalNoButton() {
 }
 
 module.exports = { 
-    createTicketButton,
     createApplicationButton,
-    createSoloProjectButton,
-    createVoyageSignupButton,
-    createCommitmentYesButton,
+    createChinguOnboardingButton,
     createCommitmentNoButton,
-    createYesButton,
-    createNoButton,
+    createCommitmentYesButton,
+    createFinalNoButton,
     createFinalYesButton,
-    createFinalNoButton
+    createNoButton,
+    createSoloProjectButton,
+    createTicketButton,
+    createVoyageSignupButton,
+    createYesButton,
 };

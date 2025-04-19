@@ -7,13 +7,14 @@ module.exports = {
     async execute(interaction) {
         if (interaction.isButton()) {
             // Route button interactions based on their customId
-            if (interaction.customId === 'application_button') {
+            if (interaction.customId === 'chingu_onboarding_button') {
                 await handleApplicationButton(interaction);
             } else if (
                 interaction.customId === 'commitment_yes' ||
                 interaction.customId === 'commitment_no' ||
                 interaction.customId === 'final_commitment_yes' ||
-                interaction.customId === 'final_commitment_no'
+                interaction.customId === 'final_commitment_no' ||
+                interaction.customId === 'ticket_button'
             ) {
                 await handleCommitmentButton(interaction);
             } else {
