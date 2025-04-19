@@ -11,9 +11,9 @@ const {
  } = require('../handlers/buttons.js');
 
 async function handleApplicationButton(interaction) {
-    const discordId = interaction.user.id;
-
+    
     try {
+        const discordId = interaction.user.id;
         // Fetch the next voyage number
         const nextVoyage = await getNextVoyage();
 
@@ -175,8 +175,12 @@ async function handleApplicationButton(interaction) {
 
         await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
     } catch (error) {
-        console.error('Error handling application button:', error);
-        await interaction.reply({ content: 'An error occurred while processing your request. Please try again later.', ephemeral: true });
+        console.error(`Error handling application button (userId: ${interaction.user.id}):`, error);
+        if (interaction.replied || interaction.deferred) {
+            await interaction.followUp({ content: 'An error occurred while processing your request. Please try again later.', ephemeral: true });
+        } else {
+            await interaction.reply({ content: 'An error occurred while processing your request. Please try again later.', ephemeral: true });
+        }
     }
 }
 

@@ -2,14 +2,14 @@ const { EmbedBuilder, ActionRowBuilder } = require('discord.js');
 const { createChinguOnboardingButton } = require('../handlers/buttons.js');
 
 async function sendOnboardingMessage(client, channelId) {
-    const channel = client.channels.cache.get(channelId);
-
-    if (!channel) {
-        console.error(`Channel with ID "${channelId}" not found.`);
-        return;
-    }
-
+    
     try {
+        const channel = client.channels.cache.get(channelId);
+    
+        if (!channel) {
+            console.error(`Channel with ID "${channelId}" not found.`);
+            return;
+        }
         // Fetch and delete old messages from the bot
         const fetchedMessages = await channel.messages.fetch({ limit: 100 });
         const botMessage = fetchedMessages.find(message => message.author.id === client.user.id);
@@ -40,7 +40,7 @@ async function sendOnboardingMessage(client, channelId) {
         await channel.send({ embeds: [embed], components: [row] });
         console.log('Onboarding message sent successfully.');
     } catch (error) {
-        console.error('Failed to send onboarding message:', error);
+        console.error(`Failed to send onboarding message to channel ${channelId}:`, error);
     }
 }
 
