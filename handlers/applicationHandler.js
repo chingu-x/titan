@@ -14,6 +14,8 @@ async function handleApplicationButton(interaction) {
     
     try {
         const discordId = interaction.user.id;
+
+        await interaction.deferReply({ ephemeral: true });
         // Fetch the next voyage number
         const nextVoyage = await getNextVoyage();
 
@@ -37,7 +39,7 @@ async function handleApplicationButton(interaction) {
 
             const row = new ActionRowBuilder().addComponents(applicationButton, ticketButton);
 
-            await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+            await interaction.editReply({ embeds: [embed], components: [row], ephemeral: true });
             return;
         }
 
@@ -63,7 +65,7 @@ async function handleApplicationButton(interaction) {
 
             const row = new ActionRowBuilder().addComponents(soloProjectButton, ticketButton);
 
-            await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+            await interaction.editReply({ embeds: [embed], components: [row], ephemeral: true });
             return;
         }
 
@@ -77,7 +79,7 @@ async function handleApplicationButton(interaction) {
                 .setTitle('Solo Project Under Review')
                 .setDescription('Your solo project is under review. Please wait for the evaluators to finish or open a support ticket if you have questions.');
 
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            await interaction.editReply({ embeds: [embed], ephemeral: true });
             return;
         }
 
@@ -94,7 +96,7 @@ async function handleApplicationButton(interaction) {
 
             const row = new ActionRowBuilder().addComponents(ticketButton);
 
-            await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+            await interaction.editReply({ embeds: [embed], components: [row], ephemeral: true });
             return;
         }
 
@@ -111,7 +113,7 @@ async function handleApplicationButton(interaction) {
 
             const row = new ActionRowBuilder().addComponents(ticketButton);
 
-            await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+            await interaction.editReply({ embeds: [embed], components: [row], ephemeral: true });
             return;
         }
 
@@ -127,7 +129,7 @@ async function handleApplicationButton(interaction) {
 
             const row = new ActionRowBuilder().addComponents(ticketButton);
 
-            await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+            await interaction.editReply({ embeds: [embed], components: [row], ephemeral: true });
             return;
         }
 
@@ -145,7 +147,7 @@ async function handleApplicationButton(interaction) {
 
             const row = new ActionRowBuilder().addComponents(voyageSignupButton, ticketButton);
 
-            await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+            await interaction.editReply({ embeds: [embed], components: [row], ephemeral: true });
             return;
         }
 
@@ -158,7 +160,7 @@ async function handleApplicationButton(interaction) {
                 .setTitle('All Steps Completed')
                 .setDescription('You’ve completed all the steps! Relax and wait for the voyage to start.');
 
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            await interaction.editReply({ embeds: [embed], ephemeral: true });
             return;
         }
 
@@ -173,7 +175,7 @@ async function handleApplicationButton(interaction) {
 
         const row = new ActionRowBuilder().addComponents(commitmentYesButton, commitmentNoButton);
 
-        await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+        await interaction.editReply({ embeds: [embed], components: [row], ephemeral: true });
     } catch (error) {
         console.error(`Error handling application button (userId: ${interaction.user.id}):`, error);
         if (interaction.replied || interaction.deferred) {
