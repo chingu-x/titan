@@ -34,7 +34,7 @@ const createResponseEmbed = (user, yesterday, today, blockers) => {
         .addFields(
             { name: 'Yesterday:', value: yesterday },
             { name: 'Today:', value: today },
-            { name: 'Blockers:', value: blockers },
+            { name: 'Blockers:', value: blockers || 'None' },
         )
         .setFooter({
             text: `standup by ${name}`,
@@ -62,14 +62,14 @@ module.exports = {
 
             await interaction.showModal(modal);
 
-            const filter = (modalInteraction) => modalInteraction.customId === 'standupModal';
+            const filter = (modalInteraction) => modalInteraction.customId === 'standupModal' && modalInteraction.user.id === interaction.user.id;
 
             try {
                 const modalInteraction = await interaction.awaitModalSubmit({ filter, time: 870000 }); // 14.5 minutes
 
                 const yesterday = modalInteraction.fields.getTextInputValue('yesterdayInput');
                 const today = modalInteraction.fields.getTextInputValue('todayInput');
-                const blockers = modalInteraction.fields.getTextInputValue('blockersInput');
+                const blockers = modalInteraction.fields.getTextInputValue('blockersInput') || 'None';
 
                 if (!yesterday || !today) {
                     throw new Error('Please fill out all required fields.');
@@ -79,10 +79,10 @@ module.exports = {
                 await modalInteraction.reply({ embeds: [response] });
             } catch (error) {
                 if (error.code === 'InteractionCollectorError') {
-                    console.error('Interaction timed out.');
-                    // No need to handle the error further as the interaction has already timed out
+                    console.error('Standup interaction timed out.');
+                  
                 } else {
-                    await handleError(interaction, error, 'An error occurred while processing your submission. Please try again.');
+                    await handleError(interaction, error, 'An error occurred while processing your standup submission. Please try again.');
                 }
             }
         } catch (error) {
