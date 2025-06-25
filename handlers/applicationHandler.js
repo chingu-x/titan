@@ -50,7 +50,7 @@ async function handleApplicationButton(interaction) {
 
         const voyageSignups = await base('Voyage Signups').select({
             filterByFormula: `{Discord ID} = '${discordId}'`,
-            fields: ['Voyage', 'Commitment Form Completed']
+            fields: ['Voyage', 'Confirmation Form Completed']
         }).firstPage();
 
         // Check if the user has submitted a solo project
@@ -152,7 +152,7 @@ async function handleApplicationButton(interaction) {
         }
 
         // Check if the commitment form is already completed
-        const commitmentStatus = nextVoyageSignup.fields['Commitment Form Completed'];
+        const commitmentStatus = nextVoyageSignup.fields['Confirmation Form Completed'];
 
         if (commitmentStatus === 'Yes') {
             const embed = new EmbedBuilder()
