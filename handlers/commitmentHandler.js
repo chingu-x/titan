@@ -55,9 +55,9 @@ async function handleCommitmentButton(interaction) {
                     const record = records[0];
                     console.log(`Updating record ID: ${record.id}`);
 
-                    // Update the commitment form status in Airtable
+                    // Update the confirmation form status in Airtable
                     await base('Voyage Signups').update(record.id, {
-                        'Commitment Form Completed': 'Yes'
+                        'Confirmation Form Completed': 'Yes'
                     });
 
                     await interaction.reply({ content: 'Thank you for accepting the voyage commitments! You are all set for the voyage.', ephemeral: true });
@@ -67,12 +67,12 @@ async function handleCommitmentButton(interaction) {
                 }
             }
         } catch (error) {
-        console.error('Error updating commitment form status:', error);
+        console.error('Error updating confirmation form status:', error);
     
         if (interaction.replied || interaction.deferred) {
-            await interaction.followUp({ content: 'An error occurred while updating your commitment status. Please try again later.', ephemeral: true });
+            await interaction.followUp({ content: 'An error occurred while updating your confirmation status. Please try again later.', ephemeral: true });
         } else {
-            await interaction.reply({ content: 'An error occurred while updating your commitment status. Please try again later.', ephemeral: true });
+            await interaction.reply({ content: 'An error occurred while updating your confirmation status. Please try again later.', ephemeral: true });
         }
     }
 }
