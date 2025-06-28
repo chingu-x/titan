@@ -69,7 +69,7 @@ module.exports = {
             // Fetch the user's voyage signups from Airtable
             const voyageSignups = await base('Voyage Signups').select({
                 filterByFormula: `{Discord ID} = '${discordId}'`,
-                fields: ['Discord Name', 'Email', 'Commitment Form Completed', 'Tier', 'Voyage', 'Team Name', 'Team No.', 'Role']
+                fields: ['Discord Name', 'Email', 'Confirmation Form Completed', 'Tier', 'Voyage', 'Team Name', 'Team No.', 'Role']
             }).firstPage();
 
             let isSignedUpForNextVoyage = false;
@@ -110,9 +110,9 @@ module.exports = {
                 'No :x: [Click Here to Signup](https://forms.gle/DajSfXQCX4qbMAu8A)';
 
             const commitmentFormText = isSignedUpForNextVoyage ?
-                nextVoyageSignupData['Commitment Form Completed'] === 'Yes' ?
+                nextVoyageSignupData['Confirmation Form Completed'] === 'Yes' ?
                     'Yes <a:check:1209501960139702363>' :
-                    'No :x: [Fill out Commitment Form](https://forms.gle/p5bhpoKFVBatQhnCA)' :
+                    'No :x: [Fill out Confirmation Form](https://forms.gle/p5bhpoKFVBatQhnCA)' :
                 'N/A';
 
             // Fetch the user's solo project from Airtable

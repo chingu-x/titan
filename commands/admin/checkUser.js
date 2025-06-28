@@ -85,7 +85,7 @@ module.exports = {
             const voyageSignups = await base('Voyage Signups').select({
                 filterByFormula: `{Discord ID} = '${discordId}'`,
 
-                fields: ['Discord Name', 'Email', 'Commitment Form Completed', 'Tier', 'Voyage', 'Team Name', 'Team No.', 'Role']
+                fields: ['Discord Name', 'Email', 'Confirmation Form Completed', 'Tier', 'Voyage', 'Team Name', 'Team No.', 'Role']
             }).firstPage();
 
             let isSignedUpForNextVoyage = false;
@@ -127,7 +127,7 @@ module.exports = {
                 'No :x:';
 
             const commitmentFormText = isSignedUpForNextVoyage ?
-                nextVoyageSignupData['Commitment Form Completed'] === 'Yes' ?
+                nextVoyageSignupData['Confirmation Form Completed'] === 'Yes' ?
                     'Yes <a:check:1209501960139702363>' :
                     'No :x:' :
                 'N/A';
