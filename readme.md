@@ -19,6 +19,8 @@ ___
   * Takes the DiscordID and checks if the users discord name matches with the one in the application table. Takes the DiscordID and checks if the user has passed any Solo Projects. If there are no projects with the value Passed, it returns the last one. Takes the DiscordID and checks if the email and discord name in the voyage signup table matches with the application. Since this shows the users email, it's only usable in certain admin channels.
 * /broadcast `<category ID> <header (optional)>`
   * Sends a message to all channels in the given category. If the channel is a forum channel, it looks for the `Welcome to your team channel` thread, and send the message there. And also use the optional `<header>` to for example ping members or role  
+* /greeting
+  * Posts a morning greeting to all Chingu's into the channel the command is issued from
 
 ### User Commands
 * /user
