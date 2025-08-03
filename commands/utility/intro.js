@@ -26,7 +26,7 @@ const handleError = async (interaction, error) => {
     }
 };
 
-const createResponseEmbed = (user, yesterday, today, blockers) => {
+const createResponseEmbed = (user, background, codingHistory, careerGoals, chinguGoals, strengths, projects) => {
     const name = user.globalName || user.username;
     return new EmbedBuilder()
         .setColor('#6DE194')
@@ -40,7 +40,7 @@ const createResponseEmbed = (user, yesterday, today, blockers) => {
             { name: 'Projects:', value: projects },
         )
         .setFooter({
-            text: `standup by ${name}`,
+            text: `introduction by ${name}`,
             iconURL: user.displayAvatarURL(),
         })
         .setTimestamp();
@@ -48,11 +48,11 @@ const createResponseEmbed = (user, yesterday, today, blockers) => {
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('standup')
-        .setDescription('Replies with a daily standup form for a team member to fill out'),
+        .setName('intro')
+        .setDescription('Replies with a introduction form for a team member to fill out'),
     async execute(interaction) {
         try {
-            const modal = new ModalBuilder().setCustomId('standupModal').setTitle('Daily Standup');
+            const modal = new ModalBuilder().setCustomId('standupModal').setTitle('Introduction');
 
             ['background', 'codingHistory', 'careerGoals', 'chinguGoals', 'strengths', 'projects'].forEach((id) => {
                 let label
@@ -92,15 +92,17 @@ module.exports = {
             try {
                 const modalInteraction = await interaction.awaitModalSubmit({ filter, time: 870000 }); // 14.5 minutes
 
-                const yesterday = modalInteraction.fields.getTextInputValue('yesterdayInput');
-                const today = modalInteraction.fields.getTextInputValue('todayInput');
-                const blockers = modalInteraction.fields.getTextInputValue('blockersInput') || 'None';
-
-                if (!yesterday || !today) {
+                const background = modalInteraction.fields.getTextInputValue('backgroundInput');
+                const codingHistory = modalInteraction.fields.getTextInputValue('codingHistoryInput');
+                const careerGoals = modalInteraction.fields.getTextInputValue('careerGoalsInput');
+                const chinguGoals = modalInteraction.fields.getTextInputValue('chinguGoalsInput');
+                const strengths = modalInteraction.fields.getTextInputValue('strengthsInput');
+                const projects = modalInteraction.fields.getTextInputValue('projectsInput');
+                if (!background || !codingHistory || !careerGoals || !chinguGoals || !strengths || !projects) {
                     throw new Error('Please fill out all required fields.');
                 }
 
-                const response = createResponseEmbed(modalInteraction.user, yesterday, today, blockers);
+                const response = createResponseEmbed(modalInteraction.user, background, codingHistory, chinguGoals, strengths, projects);
                 await modalInteraction.reply({ embeds: [response] });
             } catch (error) {
                 if (error.code === 'InteractionCollectorError') {
