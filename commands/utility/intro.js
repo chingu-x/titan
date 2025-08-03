@@ -52,7 +52,7 @@ module.exports = {
         .setDescription('Replies with a introduction form for a team member to fill out'),
     async execute(interaction) {
         try {
-            const modal = new ModalBuilder().setCustomId('standupModal').setTitle('Introduction');
+            const modal = new ModalBuilder().setCustomId('introModal').setTitle('Introduction');
 
             ['background', 'codingHistory', 'careerGoals', 'chinguGoals', 'strengths', 'projects'].forEach((id) => {
                 let label
@@ -87,7 +87,7 @@ module.exports = {
 
             await interaction.showModal(modal);
 
-            const filter = (modalInteraction) => modalInteraction.customId === 'standupModal' && modalInteraction.user.id === interaction.user.id;
+            const filter = (modalInteraction) => modalInteraction.customId === 'introModal' && modalInteraction.user.id === interaction.user.id;
 
             try {
                 const modalInteraction = await interaction.awaitModalSubmit({ filter, time: 870000 }); // 14.5 minutes
@@ -106,14 +106,14 @@ module.exports = {
                 await modalInteraction.reply({ embeds: [response] });
             } catch (error) {
                 if (error.code === 'InteractionCollectorError') {
-                    console.error('Standup interaction timed out.');
+                    console.error('Intro interaction timed out.');
                   
                 } else {
-                    await handleError(interaction, error, 'An error occurred while processing your standup submission. Please try again.');
+                    await handleError(interaction, error, 'An error occurred while processing your intro submission. Please try again.');
                 }
             }
         } catch (error) {
-            await handleError(interaction, error, 'An error occurred while initiating the standup form. Please try again.');
+            await handleError(interaction, error, 'An error occurred while initiating the intro form. Please try again.');
         }
     },
 };
