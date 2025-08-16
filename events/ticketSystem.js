@@ -32,7 +32,13 @@ module.exports = {
                 // If there's no existing thread, create a new one
                 if (!thread) {
                     // Send a message to the channel before creating the thread
-                    const newTicketMessage = await channel.send(`New ticket from <@${message.author.id}>`);
+
+                    const newTicketMessageEmbed = new EmbedBuilder()
+                        .setTitle('View User Records')
+                        .setURL(`https://soloproject.chingu.io/admin/member/${message.author.id}`)
+                        .setDescription(`New ticket from <@${message.author.id}>`)
+
+                    const newTicketMessage = await channel.send({embeds: [newTicketMessageEmbed]});
 
                     thread = await newTicketMessage.startThread({
                         name: threadName,
