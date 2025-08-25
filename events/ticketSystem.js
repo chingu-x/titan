@@ -33,16 +33,13 @@ module.exports = {
                 if (!thread) {
                     // Send a message to the channel before creating the thread
 
-                    const newTicketMessageEmbed = new EmbedBuilder()
-                        .setTitle('View User Records')
-                        .setURL(`https://soloproject.chingu.io/admin/member/${message.author.id}`)
-                        .setDescription(`New ticket from <@${message.author.id}>`)
-
-                    const newTicketMessage = await channel.send({embeds: [newTicketMessageEmbed]});
+                    const newTicketMessage = await channel.send(`New ticket from <@${message.author.id}>`);
 
                     thread = await newTicketMessage.startThread({
                         name: threadName,
                     });
+
+
 
                   const newTicketEmbed = new EmbedBuilder()
                   .setColor('#6DE194')
@@ -54,6 +51,13 @@ module.exports = {
                     await message.reply({ embeds: [newTicketEmbed] });
                 }
 
+                const memberDetailsEmbed = new EmbedBuilder()
+                    .setColor('#bd67ef')
+                    .setTitle('View Member Records')
+                    .setURL(`https://soloproject.chingu.io/admin/member/${message.author.id}`)
+                    .setDescription(`Open link to view member records. \nMember ID: ${message.author.id}`)
+
+                await thread.send({embeds:[memberDetailsEmbed]})
                 // Send the direct message to the thread
                 await thread.send(`__<@${message.author.id}> **says:**__\n${message.content}\n`);
 
