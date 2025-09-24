@@ -46,10 +46,9 @@ module.exports = {
                   .setTitle('New Ticket')
                   .setDescription('A new ticket has been opened for your request. We will get back to you shortly.')
                   .setThumbnail('https://imgur.com/EII19bn.png');
-          
+
                     // Send the embed message back to the user
-                    await message.reply({ embeds: [newTicketEmbed] });
-                }
+                await message.reply({ embeds: [newTicketEmbed] });
 
                 const memberDetailsEmbed = new EmbedBuilder()
                     .setColor('#bd67ef')
@@ -58,6 +57,9 @@ module.exports = {
                     .setDescription(`Open link to view member records. \nMember ID: ${message.author.id}`)
 
                 await thread.send({embeds:[memberDetailsEmbed]})
+                }
+
+
                 // Send the direct message to the thread
                 await thread.send(`__<@${message.author.id}> **says:**__\n${message.content}\n`);
 
@@ -80,7 +82,7 @@ module.exports = {
 
             // Extract the user ID from the thread name
             const userId = message.channel.name.split(' ').pop();
-        
+
             // Fetch the user
             const user = await message.client.users.fetch(userId);
 
@@ -106,7 +108,7 @@ module.exports = {
                     .setTitle('Ticket Closed')
                     .setDescription('Your ticket has been closed, we hope that it was resolved to your satisfaction. If you write more to Titan, a new ticket will be created. Have a nice day!')
                     .setThumbnail('https://imgur.com/EII19bn.png');
-            
+
                 // Send the embed to the user
                 user.send({ embeds: [closeEmbed] })
                     .then(() => {
