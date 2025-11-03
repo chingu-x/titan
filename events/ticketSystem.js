@@ -2,6 +2,7 @@ const { Events, EmbedBuilder } = require('discord.js');
 require('dotenv').config();
 const serverId = process.env.GUILD_ID;
 const channelId = process.env.PROCESS_TICKET_CHANNEL_ID;
+const MAX_MESSAGE_LENGTH = 1900;
 
 module.exports = {
     name: Events.MessageCreate,
@@ -59,9 +60,40 @@ module.exports = {
                 await thread.send({embeds:[memberDetailsEmbed]})
                 }
 
+                const messageChunks = [];
+                let remainingMessage = message.content;
 
+                while (remainingMessage.length > 0) {
+                    if (remainingMessage.length <= MAX_MESSAGE_LENGTH) {
+                        messageChunks.push(remainingMessage)
+                        break;
+                    }
+
+                    const chunk = remainingMessage.slice(0, MAX_MESSAGE_LENGTH);
+                    let splitIndex = -1
+
+                    const lastNewlineIndex = chunk.lastIndexOf('\n');
+                    const lastFullstopIndex = chunk.lastIndexOf('.');
+                    const lastCommaIndex = chunk.lastIndexOf(',');
+
+                    const foundDelimiter = lastNewlineIndex > 0 || lastFullstopIndex > 0 || lastCommaIndex > 0;
+
+                    if(foundDelimiter) {
+                        splitIndex = Math.max(lastNewlineIndex, lastFullstopIndex, lastCommaIndex) + 1;
+                    } else {
+                        splitIndex = MAX_MESSAGE_LENGTH;
+                    }
+
+                    messageChunks.push(remainingMessage.substring(0, splitIndex).trim());
+                    remainingMessage = remainingMessage.substring(splitIndex).trim();
+                }
+
+                await thread.send(`__<@${message.author.id}> **says:**__\n`);
                 // Send the direct message to the thread
-                await thread.send(`__<@${message.author.id}> **says:**__\n${message.content}\n`);
+                for (const [index,chunk] of messageChunks.entries()) {
+                    await thread.send(`**Part ${index+1}/${messageChunks.length}**\n${chunk}\n`);
+                }
+
 
                 // Send the attachments back to the thread
                 message.attachments.each(async (attachment) => {
