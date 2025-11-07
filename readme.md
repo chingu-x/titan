@@ -22,7 +22,14 @@ ___
 
 ### User Commands
 * /user
-  * Takes the DiscordID and checks if the users discord name matches with the one in the application table. Takes the DiscordID and checks if the user has passed any Solo Projects. If there are no projects with the value Passed, it returns the last one. Takes the DiscordID and checks if the email and discord name in the voyage signup table matches with the application. This reply is only viewable by the user. Lets the user know if their email and Discord account match with what's currently recorded on their profile in the database
+  * Displays comprehensive user information (ephemeral - only visible to the user):
+    * Verifies Discord account matches application data
+    * Shows Solo Project evaluation status and tier
+    * Displays current and next voyage participation status
+    * Shows team information (name, number, role)
+    * Displays selected time blocks (primary and alternate availability)
+    * Shows availability in both UTC and local timezone
+    * Validates email and Discord name consistency across systems
 ___
 ### Ticket System
 To open a ticket, the user can either click a button in a ticket channel, or send it DM. Titan then opens a thread inside a channel of your choosing with the name of the user as well as their ID. Titan then lets the user know that they've opened a ticket.
@@ -53,7 +60,7 @@ Temporary private voice channels are created by the user inside a dedicated text
     `OPEN_TICKET_CHANNEL_ID = <channel-to-open-ticket>`<br>
     `PROCESS_TICKET_CHANNEL_ID = <channel-to-open-threads>`<br>
     `TEMP_VOICE_ID = <channel-to-open-voice-channels>`<br>
-    `AIRTABLE_BASE_ID = <your-airtable-base-id>`<br>
+    `AIRTABLE_BASE = <your-airtable-base-id>`<br>
     `AIRTABLE_API_KEY = <your-airtable-api-key>`<br>
     `CATEGORY_TIER_1_ID = <voice-channel-category-1>`<br>
     `CATEGORY_TIER_2_ID = <voice-channel-category-2>`<br>
