@@ -130,6 +130,16 @@ module.exports = {
                         message.react('📧');
                     })
                     .catch(error => console.error(`Failed to send message to user: ${error}`));
+
+                // send attachments to the member
+                message.attachments.each(async (attachment) => {
+                    await user.send({
+                        files: [{
+                            attachment: attachment.url,
+                            name: attachment.name
+                        }]
+                    });
+                });
             }
 
             // Check if the message is .close
