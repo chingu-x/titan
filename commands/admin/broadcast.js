@@ -13,7 +13,7 @@ module.exports = {
             if (interaction.member.permissions.has('ADMINISTRATOR')) {
                 // Extract the category ID and message from the options
                 const categoryId = interaction.options.getString('category');
-                const message = interaction.options.getString('message');
+                const message = interaction.options.getString('message').replace(/\\n/g, '\n');
                 const header = interaction.options.getString('header');
 
                 // Create an embed with the message
