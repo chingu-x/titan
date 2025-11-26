@@ -72,15 +72,14 @@ async function createMenu(client, categoryIds, channelId) {
 
     if (botMessage) {
         console.log('Bot message already exists in the create voice channel. Deleting old messages...');
-        // return;
-    }
 
-    if (messages.size > 0) {
-        console.log("Deleting messages from previous create voice channel session...")
-        // await channel.bulkDelete(messages);
-        // Bulk delete doesn't work for messages older than 14 days
-        for (const message of messages.values()) {
-            await message.delete();
+        if (messages.size > 0) {
+            console.log("Deleting messages from previous create voice channel session...")
+            // await channel.bulkDelete(messages);
+            // Bulk delete doesn't work for messages older than 14 days
+            for (const message of messages.values()) {
+                await message.delete();
+            }
         }
     }
 
