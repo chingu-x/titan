@@ -72,7 +72,7 @@ async function createMenu(client, categoryIds, channelId) {
 
     if (botMessage) {
         console.log('Bot message already exists in the create voice channel. Deleting old messages...');
-        
+
         if (messages.size > 0) {
             console.log("Deleting messages from previous create voice channel session...")
             // Note: channel.bulkDelete doesn't work for messages older than 14 days
@@ -80,7 +80,7 @@ async function createMenu(client, categoryIds, channelId) {
                 try {
                     await message.delete();
                 } catch (error) {
-                    channel.send(`[tempVoice] Failed to delete message ${message.id}. Check railway logs for more details.`)
+                    channel.send(`[tempVoice] Failed to delete message ${message.id}. \nPlease manually delete the message(s) and restart titan. \nCheck railway logs for more details.`)
                     console.error(`Failed to delete message ${message.id}: ${error}`);
                     return
                 }
