@@ -90,8 +90,8 @@ module.exports = {
 
                 await thread.send(`__<@${message.author.id}> **says:**__\n`);
                 // Send the direct message to the thread
-                for (const [index,chunk] of messageChunks.entries()) {
-                    await thread.send(`**Part ${index+1}/${messageChunks.length}**\n${chunk}\n`);
+                for (const chunk of messageChunks) {
+                    await thread.send(`${chunk}\n`);
                 }
 
 
