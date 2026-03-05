@@ -66,6 +66,8 @@ Temporary private voice channels are created by the user inside a dedicated text
     `CATEGORY_TIER_2_ID = <voice-channel-category-2>`<br>
     `CATEGORY_TIER_3_ID = <voice-channel-category-3>`<br>
     `ADMIN_ROLE_ID = <admin-role-id>`<br>
+    `VOYAGE_CONFIRMATION_FORM=https://forms.gle/p5bhpoKFVBatQhnCA`
+    `VOYAGE_SIGNUP_FORM=https://forms.gle/w2kAUmNcz8shPAXS9`
 3. `node index.js` to run the bot
 4. When new commands are added, run `node deploy-commands.js.` This will update the server with the new changes. Only needed regarding commands. As of right now, this bot has no commands, so it's not necessary to use. 
 #### Dev server

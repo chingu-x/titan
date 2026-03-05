@@ -74,12 +74,12 @@ module.exports = {
             const nextVoyageSignupText = isSignedUpForNextVoyage ?
                 nextVoyageSignupData["Voyage"] === "V??" ? `Pending <a:LoadingEmoji:1274376308327190549> ` :
                     `Yes (${nextVoyageSignupData['Tier'].slice(0, 6)}) <a:check:1209501960139702363>` :
-                'No :x: [Click Here to Signup](https://forms.gle/DajSfXQCX4qbMAu8A)';
+                `No :x: [Click Here to Signup](${ process.env.VOYAGE_SIGNUP_FORM })`;
 
             const commitmentFormText = isSignedUpForNextVoyage ?
                 nextVoyageSignupData['Confirmation Form Completed'] === 'Yes' ?
                     'Yes <a:check:1209501960139702363>' :
-                    'No :x: [Fill out Confirmation Form](https://forms.gle/p5bhpoKFVBatQhnCA)' :
+                    `No :x: [Fill out Confirmation Form](${ process.env.VOYAGE_CONFIRMATION_FORM })` :
                 'N/A';
 
             // Fetch the user's solo project from Airtable
