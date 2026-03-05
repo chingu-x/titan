@@ -79,7 +79,7 @@ module.exports = {
             const commitmentFormText = isSignedUpForNextVoyage ?
                 nextVoyageSignupData['Confirmation Form Completed'] === 'Yes' ?
                     'Yes <a:check:1209501960139702363>' :
-                    `No :x: [Fill out Confirmation Form](${ process.env.VOYAGE_CONFIRMATION_URL })` :
+                    `No :x: [Fill out Confirmation Form](${ process.env.VOYAGE_CONFIRMATION_FORM })` :
                 'N/A';
 
             // Fetch the user's solo project from Airtable
