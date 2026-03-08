@@ -6,8 +6,32 @@ module.exports = {
     name: Events.InteractionCreate,
     async execute(interaction) {
         try {
+            if (interaction.isContextMenuCommand()) {
+                if (interaction.commandName === 'Send DM') {
+                    const command = interaction.client.commands.get('Send DM');
+                    if(!command) return;
+                    await command.execute(interaction);
+                }
+                return;
+            }
+            if (interaction.isModalSubmit()) {
+                // send user DM through user context menu
+                if (interaction.customId.startsWith('sendDMModal')) {
+                    try {
+                        const userId = interaction.customId.split(':')[1];
+                        const message = interaction.fields.getTextInputValue('dmMessage');
+
+                        const user = interaction.client.users.cache.get(userId);
+                        await user.send(message);
+
+                        await  interaction.reply({ content: `DM sent to ${user.tag}`, ephemeral: true });
+                    } catch (error) {
+                        await interaction.reply({ content: `Failed to send DM. ${error}`, ephemeral: true });
+                    }
+                }
+                return
+            }
             if (interaction.isButton()) {
-                
                 if (interaction.customId === 'chingu_onboarding_button') {
                     await handleApplicationButton(interaction);
                 } else if (
