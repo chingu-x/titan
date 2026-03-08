@@ -1,4 +1,4 @@
-const { Events } = require('discord.js');
+const { Events, EmbedBuilder} = require('discord.js');
 const { handleApplicationButton } = require('../handlers/applicationHandler.js');
 const { handleCommitmentButton } = require('../handlers/commitmentHandler.js');
 
@@ -6,8 +6,39 @@ module.exports = {
     name: Events.InteractionCreate,
     async execute(interaction) {
         try {
+            if (interaction.isContextMenuCommand()) {
+                const contextMenuCommands = ['Send DM', 'Member Info'];
+                if (contextMenuCommands.includes(interaction.commandName)) {
+                    const command = interaction.client.commands.get(interaction.commandName);
+                    if(!command) return;
+                    await command.execute(interaction);
+                }
+                return;
+            }
+            if (interaction.isModalSubmit()) {
+                // send user DM through user context menu
+                if (interaction.customId.startsWith('sendDMModal')) {
+                    try {
+                        const userId = interaction.customId.split(':')[1];
+                        const message = interaction.fields.getTextInputValue('dmMessage');
+
+                        const user = interaction.client.users.cache.get(userId);
+
+                        const embed = new EmbedBuilder()
+                            .setColor('#6DE194')
+                            .setDescription(message)
+                            .setFooter({ text: '- Titan from Chingu' })
+
+                        await user.send({embeds: [embed]});
+
+                        await  interaction.reply({ content: `DM sent to ${user.tag}`, ephemeral: true });
+                    } catch (error) {
+                        await interaction.reply({ content: `Failed to send DM. ${error}`, ephemeral: true });
+                    }
+                }
+                return
+            }
             if (interaction.isButton()) {
-                
                 if (interaction.customId === 'chingu_onboarding_button') {
                     await handleApplicationButton(interaction);
                 } else if (
