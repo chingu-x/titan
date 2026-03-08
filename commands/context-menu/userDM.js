@@ -1,10 +1,11 @@
 const {
     ContextMenuCommandBuilder,
     ApplicationCommandType,
-    EmbedBuilder,
     PermissionsBitField,
     TextInputBuilder,
-    TextInputStyle, ModalBuilder, ActionRowBuilder
+    TextInputStyle,
+    ModalBuilder,
+    ActionRowBuilder
 } = require("discord.js");
 
 module.exports = {

@@ -1,4 +1,4 @@
-const { Events } = require('discord.js');
+const { Events, EmbedBuilder} = require('discord.js');
 const { handleApplicationButton } = require('../handlers/applicationHandler.js');
 const { handleCommitmentButton } = require('../handlers/commitmentHandler.js');
 
@@ -7,8 +7,9 @@ module.exports = {
     async execute(interaction) {
         try {
             if (interaction.isContextMenuCommand()) {
-                if (interaction.commandName === 'Send DM') {
-                    const command = interaction.client.commands.get('Send DM');
+                const contextMenuCommands = ['Send DM', 'Member Info'];
+                if (contextMenuCommands.includes(interaction.commandName)) {
+                    const command = interaction.client.commands.get(interaction.commandName);
                     if(!command) return;
                     await command.execute(interaction);
                 }
@@ -22,7 +23,13 @@ module.exports = {
                         const message = interaction.fields.getTextInputValue('dmMessage');
 
                         const user = interaction.client.users.cache.get(userId);
-                        await user.send(message);
+
+                        const embed = new EmbedBuilder()
+                            .setColor('#6DE194')
+                            .setDescription(message)
+                            .setFooter({ text: '- Titan from Chingu' })
+
+                        await user.send({embeds: [embed]});
 
                         await  interaction.reply({ content: `DM sent to ${user.tag}`, ephemeral: true });
                     } catch (error) {
