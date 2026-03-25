@@ -2,6 +2,8 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { base } = require('../../handlers/airtable.js');
 const { getDiscordTimestampRange } = require('../../utils/timeBlocks.js');
 const { getCurrentAndNextVoyage } = require('../../utils/functions.js');
+const {getUserVoyageDetails} = require("../../utils/functions");
+const {MemberContext} = require('../../services/MemberContext.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -11,6 +13,19 @@ module.exports = {
         const discordId = interaction.user.id;
 
         try {
+
+            // temp
+            console.log("calling getUserVoyageDetails")
+            await getUserVoyageDetails(
+                interaction
+            )
+
+            // const memberContext = await MemberContext.create(discordId)
+
+            // console.log("voyageSignup", memberContext.currentVoyageSignupText)
+
+            // End of temp
+
             await interaction.deferReply({ ephemeral: true });
             // Fetch the user object using the Discord ID
             const user = await interaction.client.users.fetch(discordId);
