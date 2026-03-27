@@ -7,11 +7,17 @@ module.exports = {
     async execute(interaction) {
         try {
             if (interaction.isContextMenuCommand()) {
-                const contextMenuCommands = ['Send DM', 'Member Info'];
+                const contextMenuCommands = [
+                    'Send DM',
+                    'Member Info',
+                    'Member Voyage Info'
+                ];
                 if (contextMenuCommands.includes(interaction.commandName)) {
                     const command = interaction.client.commands.get(interaction.commandName);
                     if(!command) return;
                     await command.execute(interaction);
+                } else{
+                    console.debug(`Ignoring context menu command interaction (type: ${interaction.type}, id: ${interaction.id})`);
                 }
                 return;
             }
@@ -55,7 +61,10 @@ module.exports = {
                 return;
             }
     
-            if (!interaction.isChatInputCommand()) return;
+            if (!interaction.isChatInputCommand()) {
+                console.debug(`Ignoring non-chat input command interaction (type: ${interaction.type}, id: ${interaction.id})`);
+                return;
+            }
     
             const command = interaction.client.commands.get(interaction.commandName);
     

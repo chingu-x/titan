@@ -1,4 +1,4 @@
-const { getCurrentAndNextVoyage } = require('../commands/utility/user.js');
+const { getCurrentAndNextVoyage } = require('../utils/functions');
 
 async function getNextVoyage() {
     const { nextVoyage } = await getCurrentAndNextVoyage();

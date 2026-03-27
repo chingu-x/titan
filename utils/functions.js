@@ -10,7 +10,11 @@ async function getVoyages() {
         number: voyage.fields['Name'],
         startDate: new Date(voyage.fields['Start Date']),
         endDate: new Date(voyage.fields['End Date'])
-    })).filter(voyage => voyage.number !== 'V999').sort((a, b) => a.startDate - b.startDate);
+    })).filter(voyage =>
+        voyage.number !== 'V999' &&
+        voyage.number !== 'V99' &&
+        voyage.number[0] !== 'X'
+    ).sort((a, b) => a.startDate - b.startDate);
 }
 
 async function getCurrentAndNextVoyage() {
@@ -22,9 +26,6 @@ async function getCurrentAndNextVoyage() {
 
     for (let i = 0; i < voyages.length; i++) {
         const voyage = voyages[i];
-        if (voyage.number[0] === 'X') {
-            continue;
-        }
         if (currentDate >= voyage.startDate && currentDate <= voyage.endDate) {
             currentVoyage = voyage.number;
             nextVoyage = voyages[i + 1] ? voyages[i + 1].number : null;
@@ -38,5 +39,5 @@ async function getCurrentAndNextVoyage() {
 }
 
 module.exports = {
-    getCurrentAndNextVoyage
+    getCurrentAndNextVoyage,
 }
