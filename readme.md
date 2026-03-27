@@ -99,6 +99,21 @@ Temporary private voice channels are created by the user inside a dedicated text
   * `fix:` for bug fixes and hot fixes
   * `docs:` for documentation
   * `refactor:` for refactoring
+
+### Production
+#### Running `deploy-commands.js` on railway
+This is only needed if new commands are added.
+1. install railway cli `npm install -g @railway/cli`
+2. `railway login` - login with the service account
+3. `railway link` - link the project to railway
+    ```
+    > Select a workspace: Chingu Projects
+    > Select a project: Titan Discord 'bot
+    > Select an environment: production
+    > Select a service <esc to skip>: titan
+   ```
+4. `railway run node deploy-commands.js` - deploy commands to discord
+
 ___
 ## Todo
 * Refactor, refactor, refactor
