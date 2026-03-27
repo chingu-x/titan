@@ -11,10 +11,8 @@ class MemberContext {
         this.interaction = interaction
         this.discordId = discordId;
 
-        this.githubId = null;
         this.user = null;
         this.applicationData = null;
-        this.voyage = null;
 
         this.curentVoyage = null;
         this.nextVoyage = null;
@@ -207,7 +205,6 @@ class MemberContext {
 
         // TODO: handle multiple solo projects edge case. For now, just use the first result
         this.soloProjectData = soloProjects[0].fields;
-        this.githubId = this.soloProjectData['GitHub ID'];
         this.soloProjectTier = `Tier ${this.soloProjectData['Tier'][5]}`
     }
 
@@ -216,9 +213,6 @@ class MemberContext {
         const { currentVoyage, nextVoyage } = await getCurrentAndNextVoyage();
         this.currentVoyage = currentVoyage;
         this.nextVoyage = nextVoyage;
-
-        // if currentVoyage = null (no voyage running), use/show the next voyage
-        const voyage = currentVoyage ?? nextVoyage;
 
         // TODO: handle multiple voyage signups for the same voyage, now just pick the first return
         // fetch the user's signup forms for this voyage

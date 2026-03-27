@@ -1,12 +1,11 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField } = require('discord.js');
-const { base } = require('../../handlers/airtable.js');
-const { getCurrentAndNextVoyage } = require('../../utils/functions.js');
 const {MemberContext} = require("../../services/MemberContext");
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('checkuser')
         .setDescription('Provides information about a user.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
         .addStringOption(option =>
             option.setName('discordid')
                 .setDescription('The user\'s Discord ID.')
