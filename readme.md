@@ -4,7 +4,7 @@
 Titan is named after one of Saturn's moons, Titan, which also looks green and therefore fit with the Chingu theme.
 #### Titan is a discord bot made for Chingu
 ___
-### Titans Functions
+## Titan Functions
 * Ticket system
 * Temporary private voice channels
 * User information both for users and admins
@@ -15,7 +15,7 @@ ___
 ### Admin Commands
 * /purgechannels `<category ID>`
   * Removes all channels in the given category ID
-* /userCheck `<user ID>`
+* /checkuser `<user ID>`
   * Takes the DiscordID and checks if the users discord name matches with the one in the application table. Takes the DiscordID and checks if the user has passed any Solo Projects. If there are no projects with the value Passed, it returns the last one. Takes the DiscordID and checks if the email and discord name in the voyage sign up table matches with the application. Since this shows the users email, it's only usable in certain admin channels.
 * /broadcast `<category ID> <header (optional)>`
   * Sends a message to all channels in the given category. If the channel is a forum channel, it looks for the `Welcome to your team channel` thread, and send the message there. And also use the optional `<header>` to for example ping members or role  
@@ -48,7 +48,8 @@ Temporary private voice channels are created by the user inside a dedicated text
 ### Voyage Duplicates
 * `/voyageduplicates`
   * Checks if there are any duplicate sign ups for the next voyage
-#### How to run
+
+## How to run
 1. `npm install` to install dependencies 
 2. Set up environment variables:
     * Create an `.env` file in the root directory of your project.
