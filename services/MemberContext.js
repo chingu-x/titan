@@ -251,9 +251,6 @@ class MemberContext {
                         ? `Yes (${tierName.slice(0,6)}) <a:check:1209501960139702363>`
                         : `Tier not yet assigned`
                 }
-                // this.nextVoyageSignupText = signup.fields["Voyage"] === "V??"
-                //    ? `Pending <a:LoadingEmoji:1274376308327190549> `
-                //    : `Yes (${signup.fields['Tier'].slice(0,6)}) <a:check:1209501960139702363>`
                 this.commitmentFormText = signup.fields['Confirmation Form Completed'] === 'Yes'
                     ? 'Yes <a:check:1209501960139702363>'
                     : `No :x: [Fill out Confirmation Form](${ process.env.VOYAGE_CONFIRMATION_FORM })`
