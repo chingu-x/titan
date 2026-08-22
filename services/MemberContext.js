@@ -246,7 +246,7 @@ class MemberContext {
                 if (signup.fields["Voyage"] === "V??") {
                     this.nextVoyageSignupText = `Pending <a:LoadingEmoji:1274376308327190549> `
                 } else {
-                    const tierName = signup.fields['Tier']
+                    const tierName = signup.fields['Team Name']
                     this.nextVoyageSignupText = tierName !== undefined && tierName !== ""
                         ? `Yes (${tierName.slice(0,6)}) <a:check:1209501960139702363>`
                         : `Tier not yet assigned`
