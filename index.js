@@ -4,7 +4,7 @@ const { Client, Collection, GatewayIntentBits, Partials } = require('discord.js'
 require('dotenv').config();
 
 const client = new Client({ intents: [
-    GatewayIntentBits.Guilds,
+  GatewayIntentBits.Guilds,
 	GatewayIntentBits.GuildMessages,
 	GatewayIntentBits.MessageContent,
 	GatewayIntentBits.DirectMessages,

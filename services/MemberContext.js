@@ -1,9 +1,10 @@
-const {getCurrentAndNextVoyage} = require("../utils/functions");
+const {getCurrentAndNextVoyage, getCurrentAndPriorVoyage} = require("../utils/functions");
 const {getAllVoyageSignupsByDiscordId} = require("./voyages");
 const {getApplicationsByDiscordId} = require("./applications");
 const { getDiscordTimestampRange } = require('../utils/timeBlocks.js');
 const {EmbedBuilder} = require("discord.js");
 const {getSoloProjectsByDiscordId} = require("./soloProjects");
+const { getVoyageProjectByDiscordId } = require("./voyageProjects.js");
 
 
 class MemberContext {
@@ -24,6 +25,11 @@ class MemberContext {
         this.evaluationStatus = null;
         this.evaluationEmoji = ':x:';
 
+        this.voyageProjectData = null;
+        this.voyageProjectText = `No :x:`
+        this.demoDayData = null;
+        this.demoDayText = `No :x:`;
+
         this.currentVoyageSignupData = null;
         this.nextVoyageSignupData = null;
         this.nextVoyageSignupText = `No :x: [Click Here to Signup](${ process.env.VOYAGE_SIGNUP_FORM })`;
@@ -42,6 +48,7 @@ class MemberContext {
         await instance.loadSoloProjects()
         await instance.loadApplications()
         await instance.loadVoyageSignups()
+        await instance.loadVoyageProjects()
 
         return instance;
     }
@@ -212,7 +219,7 @@ class MemberContext {
 // fetch the current and next voyage
         const { currentVoyage, nextVoyage } = await getCurrentAndNextVoyage();
         this.currentVoyage = currentVoyage;
-        this.nextVoyage = nextVoyage;
+        this.priorVoyage = nextVoyage;
 
         // TODO: handle multiple voyage signups for the same voyage, now just pick the first return
         // fetch the user's signup forms for this voyage
@@ -265,6 +272,34 @@ class MemberContext {
 
         this.currentVoyageSignupRole = this.currentVoyageSignupData ?
             `${this.currentVoyageSignupData['Role']}` : 'N/A';
+    }
+
+    async loadVoyageProjects() {
+        const { currentVoyage, nextVoyage } = await getCurrentAndPriorVoyage();
+        this.currentVoyage = currentVoyage;
+        this.nextVoyage = nextVoyage;
+        const voyageName = this.currentVoyage ? this.currentVoyage : this.nextVoyage
+        const voyageProjects = await getVoyageProjectByDiscordId(
+            voyageName, this.discordId,
+            [
+                'Discord Name',
+                'Email',
+                'Completed Voyage?',
+                'Completion Status'
+            ]
+        )
+
+        if (voyageProjects?.length === 0) {
+            console.debug(`No voyage projects found for user with Discord ID ${this.discordId} and Voyage ${voyageName}`);
+            return
+        }
+
+        // Our process is for only one team member to submit a Voyage Project
+        // form and an automated workflow is run to replicate it in that table
+        // for each team member. Due to this a member may not have actually
+        // submitted the form, but we'll still indicate that they have if one
+        // is found.
+        this.voyageProjectSubmitted = `Yes`;
     }
 
     /**

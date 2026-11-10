@@ -38,6 +38,28 @@ async function getCurrentAndNextVoyage() {
     return { currentVoyage, nextVoyage };
 }
 
+async function getCurrentAndPriorVoyage() {
+    const voyages = await getVoyages();
+    const currentDate = new Date();
+
+    let currentVoyage = null;
+    let nextVoyage = null;
+
+    for (let i = 0; i < voyages.length; i++) {
+        const voyage = voyages[i];
+        if (currentDate >= voyage.startDate && currentDate <= voyage.endDate) {
+            currentVoyage = voyage.number;
+            nextVoyage = voyages[i + 1] ? voyages[i + 1].number : null;
+            break;
+        } else if (currentDate > voyage.startDate) {
+            priorVoyage = voyage.number;
+            break;
+        }
+    }
+    return { currentVoyage, priorVoyage };
+}
+
 module.exports = {
     getCurrentAndNextVoyage,
+    getCurrentAndPriorVoyage,
 }
