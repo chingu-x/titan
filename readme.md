@@ -2,9 +2,13 @@
 ![Static Badge](https://img.shields.io/badge/14.14.1-purple?style=for-the-badge&logo=discord&logoColor=white&label=discord.js&labelColor=%235865f2&color=%232c2f33)![Static Badge](https://img.shields.io/badge/1.0.0-white?style=for-the-badge&label=Titan&labelColor=%23000)
 
 Titan is named after one of Saturn's moons, Titan, which also looks green and therefore fit with the Chingu theme.
-#### Titan is a discord bot made for Chingu
+
+## Titan is a discord bot made for Chingu
+
 ___
-## Titan Functions
+
+### Titan Functions
+
 * Ticket system
 * Temporary private voice channels
 * User information both for users and admins
@@ -13,6 +17,7 @@ ___
 * Standup function
 
 ### Admin Commands
+
 * /purgechannels `<category ID>`
   * Removes all channels in the given category ID
 * /checkuser `<user ID>`
@@ -21,6 +26,7 @@ ___
   * Sends a message to all channels in the given category. If the channel is a forum channel, it looks for the `Welcome to your team channel` thread, and send the message there. And also use the optional `<header>` to for example ping members or role  
 
 ### User Commands
+
 * /user
   * Displays comprehensive user information (ephemeral - only visible to the user):
     * Verifies Discord account matches application data
@@ -30,8 +36,11 @@ ___
     * Displays selected time blocks (primary and alternate availability)
     * Shows availability in both UTC and local timezone
     * Validates email and Discord name consistency across systems
+
 ___
+
 ### Ticket System
+
 To open a ticket, the user can either click a button in a ticket channel, or send it DM. Titan then opens a thread inside a channel of your choosing with the name of the user as well as their ID. Titan then lets the user know that they've opened a ticket.
 
 The moderation team can discuss the ticket inside the thread, and nothing will be sent to the user. To reply to the user simply use `.reply <your-message>`. Titan will then send your message to the user in a DM, and the user can just continue to respond to Titan in order to update the ticket. A mail reaction icon on the message you tried to send, will signal that the message was actually sent to the user. 
@@ -39,17 +48,21 @@ The moderation team can discuss the ticket inside the thread, and nothing will b
 To close the ticket you can use `.close` This will change the name of the thread to `Closed - <user.name> <user.id>`. This also notifies the user that the ticket has been closed.
 
 ### Temporary private voice channels
+
 Temporary private voice channels are created by the user inside a dedicated text channel. The text channel has a select menu (dropdown menu) for each category. The user selects their team text channel from the select menu, and the bot copies all permissions from the team channel that the user chose, and applies them to the new voice channel. The voice channel will appear just below the text channel it was created from, in the same category. The private voice channel will be removed if nobody uses it for 1min
 
 ### Standup
+
 * `/standup`
   * Shows a modal to the user with 3 text boxes, `Yesterday`, `Today` and ``Blockers`. It then posts the standup in the channel for the team to review.
 
 ### Voyage Duplicates
+
 * `/voyageduplicates`
   * Checks if there are any duplicate sign ups for the next voyage
 
 ## How to run
+
 1. `npm install` to install dependencies 
 2. Set up environment variables:
     * Create an `.env` file in the root directory of your project.
@@ -71,19 +84,25 @@ Temporary private voice channels are created by the user inside a dedicated text
     `VOYAGE_SIGNUP_FORM=https://forms.gle/w2kAUmNcz8shPAXS9`
 3. `node index.js` to run the bot
 4. When new commands are added, run `node deploy-commands.js.` This will update the server with the new changes. Only needed regarding commands. As of right now, this bot has no commands, so it's not necessary to use. 
-#### Dev server
+
+### Dev server
+
 1. `npm run dev` to start development server
 
-#### Dependencies
+### Dependencies
+
 * airtable - ^0.12.2
 * discord.js - 14.14.1
 * dotenv - 16.3.1
 
 #### Dev Dependencies
+
 * nodemon - ^3.1.4
 
 ### Development
+
 #### Branch naming
+
 * lowercase and hyphen instead of space. For example `feature/discord-bot`
 * Only alphanumeric characters, don't use period, space, underscores etc. and don't use multiple hyphens after another, or trailing hyphens.
 
@@ -94,6 +113,7 @@ Temporary private voice channels are created by the user inside a dedicated text
 5. `refactor/` for refactoring.
 
 #### Commit messages
+
 * all commit messages should be short (50 characters or less), but descriptive. Example `feat: add admin dashboard ` The description should also be what the commit does, not what you did. Notice the example above said `add` not `added`
 * We use the following prefixes:
   * `feat:` for features
@@ -102,21 +122,28 @@ Temporary private voice channels are created by the user inside a dedicated text
   * `refactor:` for refactoring
 
 ### Production
+
 #### Running `deploy-commands.js` on railway
+
 This is only needed if new commands are added.
+
 1. install railway cli `npm install -g @railway/cli`
 2. `railway login` - login with the service account
 3. `railway link` - link the project to railway
-    ```
+
+    ```bash
     > Select a workspace: Chingu Projects
     > Select a project: Titan Discord 'bot
     > Select an environment: production
     > Select a service <esc to skip>: titan
    ```
+
 4. `railway run node deploy-commands.js` - deploy commands to discord
 
 ___
+
 ## Todo
+
 * Refactor, refactor, refactor
 * Add more functionality:
   * Improve server.js
@@ -128,3 +155,4 @@ ___
     * Schedule weekly messages
   * Probably more....
   * Maybe a web-interface
+  
