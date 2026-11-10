@@ -18,14 +18,14 @@ function createSoloProjectButton() {
     return new ButtonBuilder()
     .setLabel('Solo Project Form')
     .setStyle(ButtonStyle.Link)
-    .setURL('https://docs.google.com/forms/d/12wQ1gyZPojCjIYg7gMTSHLcjSopJUzw5H7KcSEKRlc0/viewform');
+    .setURL(process.env.SOLO_PROJECT_FORM_URL);
 }
 
 function createVoyageSignupButton() {
     return new ButtonBuilder()
     .setLabel('Voyage Signup Form')
     .setStyle(ButtonStyle.Link)
-    .setURL('https://docs.google.com/forms/d/e/1FAIpQLSeSf9nPlTjJxms41oKL5txyoQ3IsJMwu44gtclEWZ_L6CM6qA/viewform');
+    .setURL(process.env.VOYAGE_SIGNUP_FORM);
 }
 
 function createCommitmentYesButton() {
