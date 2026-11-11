@@ -6,8 +6,8 @@ const getDemoDaySignupsByDiscordId = async (
     fields = ['*']
 ) => {
     try{
-        const demoDaySignups = await base('Demo Day Signups').select({
-            filterByFormula: `AND({Discord ID (from Application link)} = '${ discordId }', {What is your Voyage?} = '${ voyageName }')`,
+        const demoDaySignups = await base('Demo Day Signup').select({
+            filterByFormula: `AND({Discord ID (from Application link)} = '${ discordId }', {Voyage} = '${ voyageName }')`,
             fields
         }).firstPage();
         return demoDaySignups;

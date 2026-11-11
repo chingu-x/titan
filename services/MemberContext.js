@@ -163,12 +163,12 @@ class MemberContext {
             )
             .addFields(
                 {
-                    name: `Submitted Voyage Project for ${this.priorVoyage}`,
+                    name: `Submitted Project for ${this.currentVoyage.number}`,
                     value: this.isVoyageProjectSubmitted? "Yes" : "No",
                     inline: true
                 },
                 { 
-                    name: `Submitted Demo Day presentation:`, 
+                    name: `Submitted Demo Day presentation for ${this.currentVoyage.number}:`, 
                     value: this.isDemoDaySignupSubmitted? "Yes" : "No",
                     inline: true },
     
@@ -289,12 +289,34 @@ class MemberContext {
             `${this.currentVoyageSignupData['Role']}` : 'N/A';
     }
 
+    async selectVoyageForClosureInfo(currentVoyage, priorVoyage) {
+        // Edge case: choosing the prior Voyage won't report on the Voyage 
+        // Project status for the current Voyage until it ends. The solution 
+        // we have chosen for this is to report on the current Voyage if 
+        // Sprint 5 has started and the Voyage hasn't ended. Once the Voyage
+        // ends we use the prior Voyage.
+        const currentDate = new Date();
+        if (currentVoyage !== null) {
+            if (currentDate >= currentVoyage.sprint5StartDate && currentDate <= currentVoyage.endDate) {
+               return currentVoyage 
+            } else {
+               return priorVoyage
+            }
+        }
+        return priorVoyage
+    }
+
     async loadVoyageProjects() {
+        // Our process is for only one team member to submit a Voyage Project
+        // form and an automated workflow is run to replicate it in that table
+        // for each team member. Due to this a member may not have actually
+        // submitted the form, but we'll still indicate that they have if one
+        // is found.
         const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
-        this.currentVoyage = currentVoyage;
-        this.priorVoyage = priorVoyage;
+        this.currentVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage)
+
         const voyageProjects = await getVoyageProjectsByDiscordId(
-            priorVoyage, this.discordId,
+            currentVoyage.number, this.discordId,
             [
                 'Discord ID (from Application link)',
                 'Email',
@@ -304,36 +326,28 @@ class MemberContext {
         )
 
         if (voyageProjects?.length === 0) {
-            console.debug(`No voyage projects found for user with Discord ID ${this.discordId} and Voyage ${this.priorVoyage}`);
+            console.debug(`No voyage projects found for user with Discord ID ${this.discordId} and Voyage ${this.currentVoyage.number}`);
             return
         }
 
-        // Our process is for only one team member to submit a Voyage Project
-        // form and an automated workflow is run to replicate it in that table
-        // for each team member. Due to this a member may not have actually
-        // submitted the form, but we'll still indicate that they have if one
-        // is found.
-
-        // Edge case: This doesn't report on the Voyage Project status
-        // for the current Voyage until it ends. One solution is to report on
-        // the current Voyage if it's past Sprint 5
         this.isVoyageProjectSubmitted = true;
     }
 
     async loadDemoDaySignups() {
         const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
-        this.currentVoyage = currentVoyage;
-        this.priorVoyage = priorVoyage;
+        this.currentVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage)
+
         const demoDaySubmissions = await getDemoDaySignupsByDiscordId(
-            priorVoyage, this.discordId,
+            currentVoyage.number, this.discordId,
             [
-                'Discord ID (from Voyage Signups)',
-                'Email'
+                'Discord ID (from Application link)',
+                'Email',
+                'Voyage'
             ]
         )
 
         if (demoDaySubmissions?.length === 0) {
-            console.debug(`No demo day submissions found for user with Discord ID ${this.discordId} and Voyage ${this.priorVoyage}`);
+            console.debug(`No demo day submissions found for user with Discord ID ${this.discordId} and Voyage ${this.currentVoyage.number}`);
             return
         }
 
