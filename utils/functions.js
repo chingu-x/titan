@@ -40,6 +40,7 @@ async function getCurrentAndNextVoyage() {
 
 async function getCurrentAndPriorVoyage() {
     const voyages = await getVoyages();
+    const sortedVoyages = voyages.reverse()
     const currentDate = new Date();
 
     let currentVoyage = null;
@@ -49,13 +50,14 @@ async function getCurrentAndPriorVoyage() {
         const voyage = voyages[i];
         if (currentDate >= voyage.startDate && currentDate <= voyage.endDate) {
             currentVoyage = voyage.number;
-            nextVoyage = voyages[i + 1] ? voyages[i + 1].number : null;
+            priorVoyage = voyages[i + 1] ? voyages[i + 1].number : null;
             break;
         } else if (currentDate > voyage.startDate) {
             priorVoyage = voyage.number;
             break;
         }
     }
+    console.log(`currentVoyage:${currentVoyage} priorVoyage:${priorVoyage}`)
     return { currentVoyage, priorVoyage };
 }
 

@@ -7,7 +7,7 @@ const getVoyageProjectsByDiscordId = async (
 ) => {
     try{
         const voyageProjects = await base('Voyage Projects').select({
-            filterByFormula: `AND({Discord ID} = '${ discordId }', {Voyage} = '${ voyageName }')`,
+            filterByFormula: `AND({Discord ID (from Application link)} = '${ discordId }', {What is your Voyage?} = '${ voyageName }')`,
             fields
         }).firstPage();
         return voyageProjects;

@@ -4,7 +4,8 @@ const {getApplicationsByDiscordId} = require("./applications");
 const { getDiscordTimestampRange } = require('../utils/timeBlocks.js');
 const {EmbedBuilder} = require("discord.js");
 const {getSoloProjectsByDiscordId} = require("./soloProjects");
-const { getVoyageProjectByDiscordId } = require("./voyageProjects.js");
+const { getVoyageProjectsByDiscordId } = require("./voyageProjects.js");
+const { getDemoDaySignupsByDiscordId } = require("./demoDaySignups.js")
 
 
 class MemberContext {
@@ -49,6 +50,7 @@ class MemberContext {
         await instance.loadApplications()
         await instance.loadVoyageSignups()
         await instance.loadVoyageProjects()
+        await instance.loadDemoDaySignups()
 
         return instance;
     }
@@ -156,7 +158,20 @@ class MemberContext {
                     name: `Commitment Form for ${this.nextVoyage}?`,
                     value: this.nextVoyageSignupData? this.commitmentFormText : 'N/A',
                     inline: true
-                }
+                },
+                { name: '\u200B', value: '\u200B' },
+            )
+            .addFields(
+                {
+                    name: `Submitted Voyage Project for ${this.priorVoyage}`,
+                    value: this.isVoyageProjectSubmitted? "Yes" : "No",
+                    inline: true
+                },
+                { 
+                    name: `Submitted Demo Day presentation:`, 
+                    value: this.isDemoDaySignupSubmitted? "Yes" : "No",
+                    inline: true },
+    
             )
             .setThumbnail('https://imgur.com/EII19bn.png');
     }
@@ -216,7 +231,7 @@ class MemberContext {
     }
 
     async loadVoyageSignups() {
-// fetch the current and next voyage
+        // fetch the current and next voyage
         const { currentVoyage, nextVoyage } = await getCurrentAndNextVoyage();
         this.currentVoyage = currentVoyage;
         this.priorVoyage = nextVoyage;
@@ -275,14 +290,13 @@ class MemberContext {
     }
 
     async loadVoyageProjects() {
-        const { currentVoyage, nextVoyage } = await getCurrentAndPriorVoyage();
+        const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
         this.currentVoyage = currentVoyage;
-        this.nextVoyage = nextVoyage;
-        const voyageName = this.currentVoyage ? this.currentVoyage : this.nextVoyage
-        const voyageProjects = await getVoyageProjectByDiscordId(
-            voyageName, this.discordId,
+        this.priorVoyage = priorVoyage;
+        const voyageProjects = await getVoyageProjectsByDiscordId(
+            priorVoyage, this.discordId,
             [
-                'Discord Name',
+                'Discord ID (from Application link)',
                 'Email',
                 'Completed Voyage?',
                 'Completion Status'
@@ -290,7 +304,7 @@ class MemberContext {
         )
 
         if (voyageProjects?.length === 0) {
-            console.debug(`No voyage projects found for user with Discord ID ${this.discordId} and Voyage ${voyageName}`);
+            console.debug(`No voyage projects found for user with Discord ID ${this.discordId} and Voyage ${this.priorVoyage}`);
             return
         }
 
@@ -299,7 +313,37 @@ class MemberContext {
         // for each team member. Due to this a member may not have actually
         // submitted the form, but we'll still indicate that they have if one
         // is found.
-        this.voyageProjectSubmitted = `Yes`;
+
+        // Edge case: This doesn't report on the Voyage Project status
+        // for the current Voyage until it ends. One solution is to report on
+        // the current Voyage if it's past Sprint 5
+        this.isVoyageProjectSubmitted = true;
+    }
+
+    async loadDemoDaySignups() {
+        const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
+        this.currentVoyage = currentVoyage;
+        this.priorVoyage = priorVoyage;
+        const demoDaySubmissions = await getDemoDaySignupsByDiscordId(
+            priorVoyage, this.discordId,
+            [
+                'Discord ID (from Voyage Signups)',
+                'Email'
+            ]
+        )
+
+        if (demoDaySubmissions?.length === 0) {
+            console.debug(`No demo day submissions found for user with Discord ID ${this.discordId} and Voyage ${this.priorVoyage}`);
+            return
+        }
+
+        // Our process is for only one team member to submit a Demo Day
+        // form.
+
+        // Edge case: This doesn't report on the Demo Day status
+        // for the current Voyage until it ends. One solution is to report on
+        // the current Voyage if it's past Sprint 5
+        this.isDemoDaySignupSubmitted = true;
     }
 
     /**
