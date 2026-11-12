@@ -89,6 +89,47 @@ Temporary private voice channels are created by the user inside a dedicated text
 
 1. `npm run dev` to start development server
 
+### Testing
+
+Tests use [Vitest](https://vitest.dev/) and live in the `tests/` directory. Discord and Airtable are never contacted: each test passes in a fake Discord interaction (`tests/helpers/mockInteraction.mjs`) and replaces `MemberContext.create` with a fake, so only the command's own logic is tested.
+
+* `npm test` - run the suite once
+* `npm run test:watch` - re-run tests as files change
+
+#### `/checkuser` - `tests/commands/checkUser.test.mjs`
+
+| Test | Objective |
+| --- | --- |
+| is named "checkuser" with a description | Confirm the command is registered under the expected name and description |
+| defaults to Administrator-only permissions | Confirm Discord hides the command from non-admins by default |
+| has a single required "discordid" string option | Confirm the command requires exactly one Discord ID string argument |
+| exports an execute function | Confirm the command module has the shape the command loader expects |
+| rejects non-administrators without looking up the user | Confirm non-admins get a permission error and no user data is fetched |
+| rejects an ID that is non-numeric / too short (16 digits) / too long (21 digits) / contains letters / a mention / empty | Confirm invalid Discord IDs get a "not a valid Discord ID" reply and no lookup happens (6 cases) |
+| accepts an ID with 17 / 18 / 20 digits | Confirm valid Discord ID lengths pass validation and are looked up (3 cases) |
+| trims surrounding whitespace before validating | Confirm leading and trailing spaces in the ID are ignored |
+| replies ephemerally with the member context embed | Confirm a successful lookup replies once with the user info embed, visible only to the admin |
+| looks up the requested ID, not the invoking admin | Confirm the lookup uses the ID typed in, not the ID of the admin running the command |
+| replies with an error message when the lookup fails | Confirm a failed lookup is logged and the admin gets a generic error reply |
+| edits the reply instead when the interaction was already replied to | Confirm the error is sent by editing the existing reply when one has already been sent |
+| edits the reply instead when the interaction was deferred | Confirm the error is sent by editing the reply when the interaction was deferred |
+| uses the error path when building the embed throws | Confirm an error while building the embed still gives a generic error reply |
+
+#### `/user` - `tests/commands/user.test.mjs`
+
+| Test | Objective |
+| --- | --- |
+| is named "user" with a description | Confirm the command is registered under the expected name and description |
+| takes no options and has no permission restriction | Confirm any member can run the command with no arguments |
+| exports an execute function | Confirm the command module has the shape the command loader expects |
+| looks up the invoking user's own Discord ID | Confirm users can only see their own information |
+| replies ephemerally with the member context embed | Confirm a successful lookup replies once with the user info embed, visible only to that user |
+| does not require administrator permission | Confirm no admin permission check is made |
+| replies with an error message when the lookup fails | Confirm a failed lookup is logged and the user gets a generic error reply |
+| edits the reply instead when the interaction was already replied to | Confirm the error is sent by editing the existing reply when one has already been sent |
+| edits the reply instead when the interaction was deferred | Confirm the error is sent by editing the reply when the interaction was deferred |
+| uses the error path when building the embed throws | Confirm an error while building the embed still gives a generic error reply |
+
 ### Dependencies
 
 * airtable - ^0.12.2
@@ -98,6 +139,7 @@ Temporary private voice channels are created by the user inside a dedicated text
 #### Dev Dependencies
 
 * nodemon - ^3.1.4
+* vitest - ^5.1.0
 
 ### Development
 
