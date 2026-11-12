@@ -30,7 +30,7 @@ class MemberContext {
         this.demoDayVoyage = null;
         this.demoDayText = `No :x:`;
 
-        this.currentVoyageSignup = null;
+        this.currentVoyageSignupData = null;
         this.nextVoyageSignupData = null;
         this.nextVoyageSignupText = `No :x: [Click Here to Signup](${ process.env.VOYAGE_SIGNUP_FORM })`;
 
@@ -162,7 +162,7 @@ class MemberContext {
             )
             .addFields(
                 {
-                    name: `Submitted Project for ${this.currentVoyage}`,
+                    name: `Submitted Project for ${this.voyageProjectVoyage}`,
                     value: this.voyageProjectText,
                     inline: true
                 },
@@ -233,7 +233,7 @@ class MemberContext {
         // fetch the current and next voyage
         const { currentVoyage, nextVoyage } = await getCurrentAndNextVoyage();
         this.currentVoyage = currentVoyage;
-        this.priorVoyage = nextVoyage;
+        this.nextVoyage = nextVoyage;
 
         // TODO: handle multiple voyage signups for the same voyage, now just pick the first return
         // fetch the user's signup forms for this voyage
@@ -312,6 +312,10 @@ class MemberContext {
         // submitted the form, but we'll still indicate that they have if one
         // is found.
         const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
+        if (currentVoyage === null && priorVoyage === null) {
+            console.debug(`No current or prior Voyage found`);
+            return
+        }
         this.voyageProjectVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage)
 
         const voyageProjects = await getVoyageProjectsByDiscordId(
@@ -324,19 +328,21 @@ class MemberContext {
             ]
         )
 
-        if (this.voyageProjects?.length === 0) {
+        if (voyageProjects?.length === 0) {
             console.debug(`No voyage projects found for user with Discord ID ${this.discordId} and Voyage ${this.voyageProjectVoyage.number}`);
             return
         }
 
         this.voyageProjectText = 'Yes <a:check:1209501960139702363>';
-;
     }
 
     async loadDemoDaySignups() {
         const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
+        if (currentVoyage === null && priorVoyage === null) {
+            console.debug(`No current or prior Voyage found`);
+            return
+        }
         this.demoDayVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage)
-
 
         const demoDaySubmissions = await getDemoDaySignupsByDiscordId(
             this.demoDayVoyage.number, this.discordId,

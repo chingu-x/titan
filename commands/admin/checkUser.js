@@ -17,7 +17,10 @@ module.exports = {
         }
 
         // Get the Discord ID from the command argument
-        const discordId = interaction.options.getString('discordid');
+        const discordId = interaction.options.getString('discordid').trim();
+        if (!/^\d{17,20}$/.test(discordId)) {
+            return interaction.reply({ content: 'That is not a valid Discord ID.', ephemeral: true });
+        }
 
         try {
             const memberContext = await MemberContext.create(interaction, discordId)
