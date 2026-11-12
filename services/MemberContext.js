@@ -25,12 +25,12 @@ class MemberContext {
         this.evaluationStatus = null;
         this.evaluationEmoji = ':x:';
 
-        this.voyageProjectData = null;
+        this.voyageProjectVoyage = null;
         this.voyageProjectText = `No :x:`
-        this.demoDayData = null;
+        this.demoDayVoyage = null;
         this.demoDayText = `No :x:`;
 
-        this.currentVoyageSignupData = null;
+        this.currentVoyageSignup = null;
         this.nextVoyageSignupData = null;
         this.nextVoyageSignupText = `No :x: [Click Here to Signup](${ process.env.VOYAGE_SIGNUP_FORM })`;
 
@@ -162,12 +162,12 @@ class MemberContext {
             )
             .addFields(
                 {
-                    name: `Submitted Project for ${this.currentVoyage.number}`,
+                    name: `Submitted Project for ${this.currentVoyage}`,
                     value: this.voyageProjectText,
                     inline: true
                 },
                 { 
-                    name: `Submitted Demo Day presentation for ${this.currentVoyage.number}:`, 
+                    name: `Submitted Demo Day presentation for ${this.currentVoyage}:`, 
                     value: this.demoDayText,
                     inline: true
                 },
@@ -312,10 +312,10 @@ class MemberContext {
         // submitted the form, but we'll still indicate that they have if one
         // is found.
         const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
-        this.voyageProjectData = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage)
+        this.voyageProjectVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage)
 
         const voyageProjects = await getVoyageProjectsByDiscordId(
-            this.voyageProjectData.number, this.discordId,
+            this.voyageProjectVoyage.number, this.discordId,
             [
                 'Discord ID (from Application link)',
                 'Email',
@@ -324,8 +324,8 @@ class MemberContext {
             ]
         )
 
-        if (this.voyageProjectData?.length === 0) {
-            console.debug(`No voyage projects found for user with Discord ID ${this.discordId} and Voyage ${this.voyageProjectData.number}`);
+        if (this.voyageProjects?.length === 0) {
+            console.debug(`No voyage projects found for user with Discord ID ${this.discordId} and Voyage ${this.voyageProjectVoyage.number}`);
             return
         }
 
@@ -335,11 +335,11 @@ class MemberContext {
 
     async loadDemoDaySignups() {
         const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
-        this.demoDayData = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage)
+        this.demoDayVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage)
 
 
         const demoDaySubmissions = await getDemoDaySignupsByDiscordId(
-            this.demoDayData.number, this.discordId,
+            this.demoDayVoyage.number, this.discordId,
             [
                 'Discord ID (from Application link)',
                 'Email',
@@ -348,7 +348,7 @@ class MemberContext {
         )
 
         if (demoDaySubmissions?.length === 0) {
-            console.debug(`No demo day submissions found for user with Discord ID ${this.discordId} and Voyage ${this.demoDayData.number}`);
+            console.debug(`No demo day submissions found for user with Discord ID ${this.discordId} and Voyage ${this.demoDayVoyage.number}`);
             return
         }
         
