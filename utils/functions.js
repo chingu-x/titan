@@ -49,8 +49,8 @@ async function getCurrentAndPriorVoyage() {
     let currentVoyage = null;
     let priorVoyage = null;
 
-    for (let i = 0; i < voyages.length; i++) {
-        const voyage = voyages[i];
+    for (let i = 0; i < sortedVoyages.length; i++) {
+        const voyage = sortedVoyages[i];
         if (currentDate >= voyage.startDate && currentDate <= voyage.endDate) {
             currentVoyage = voyage;
             priorVoyage = voyages[i + 1] ? voyages[i + 1]: null;

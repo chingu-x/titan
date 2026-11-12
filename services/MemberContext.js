@@ -163,12 +163,12 @@ class MemberContext {
             .addFields(
                 {
                     name: `Submitted Project for ${this.currentVoyage.number}`,
-                    value: this.isVoyageProjectSubmitted? "Yes" : "No",
+                    value: this.voyageProjectText,
                     inline: true
                 },
                 { 
                     name: `Submitted Demo Day presentation for ${this.currentVoyage.number}:`, 
-                    value: this.isDemoDaySignupSubmitted? "Yes" : "No",
+                    value: this.demoDayText,
                     inline: true
                 },
             )
@@ -312,10 +312,10 @@ class MemberContext {
         // submitted the form, but we'll still indicate that they have if one
         // is found.
         const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
-        this.currentVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage)
+        this.voyageProjectData = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage)
 
         const voyageProjects = await getVoyageProjectsByDiscordId(
-            currentVoyage.number, this.discordId,
+            this.voyageProjectData.number, this.discordId,
             [
                 'Discord ID (from Application link)',
                 'Email',
@@ -324,20 +324,22 @@ class MemberContext {
             ]
         )
 
-        if (voyageProjects?.length === 0) {
-            console.debug(`No voyage projects found for user with Discord ID ${this.discordId} and Voyage ${this.currentVoyage.number}`);
+        if (this.voyageProjectData?.length === 0) {
+            console.debug(`No voyage projects found for user with Discord ID ${this.discordId} and Voyage ${this.voyageProjectData.number}`);
             return
         }
 
-        this.isVoyageProjectSubmitted = true;
+        this.voyageProjectText = 'Yes <a:check:1209501960139702363>';
+;
     }
 
     async loadDemoDaySignups() {
         const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
-        this.currentVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage)
+        this.demoDayData = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage)
+
 
         const demoDaySubmissions = await getDemoDaySignupsByDiscordId(
-            currentVoyage.number, this.discordId,
+            this.demoDayData.number, this.discordId,
             [
                 'Discord ID (from Application link)',
                 'Email',
@@ -346,11 +348,11 @@ class MemberContext {
         )
 
         if (demoDaySubmissions?.length === 0) {
-            console.debug(`No demo day submissions found for user with Discord ID ${this.discordId} and Voyage ${this.currentVoyage.number}`);
+            console.debug(`No demo day submissions found for user with Discord ID ${this.discordId} and Voyage ${this.demoDayData.number}`);
             return
         }
         
-        this.isDemoDaySignupSubmitted = true;
+        this.demoDayText = 'Yes <a:check:1209501960139702363>';
     }
 
     /**
