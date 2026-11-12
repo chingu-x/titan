@@ -162,7 +162,7 @@ class MemberContext {
             )
             .addFields(
                 {
-                    name: `Submitted Project for ${this.voyageProjectVoyage}`,
+                    name: `Submitted Project for ${this.voyageProjectVoyage.number}`,
                     value: this.voyageProjectText,
                     inline: true
                 },
@@ -328,7 +328,7 @@ class MemberContext {
             ]
         )
 
-        if (voyageProjects?.length === 0) {
+        if (!voyageProjects?.length) {
             console.debug(`No voyage projects found for user with Discord ID ${this.discordId} and Voyage ${this.voyageProjectVoyage.number}`);
             return
         }
@@ -353,7 +353,7 @@ class MemberContext {
             ]
         )
 
-        if (demoDaySubmissions?.length === 0) {
+        if (!demoDaySubmissions?.length) {
             console.debug(`No demo day submissions found for user with Discord ID ${this.discordId} and Voyage ${this.demoDayVoyage.number}`);
             return
         }
