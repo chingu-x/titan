@@ -7,7 +7,6 @@ const {getSoloProjectsByDiscordId} = require("./soloProjects");
 const { getVoyageProjectsByDiscordId } = require("./voyageProjects.js");
 const { getDemoDaySignupsByDiscordId } = require("./demoDaySignups.js")
 
-
 class MemberContext {
     constructor(interaction, discordId) {
         this.interaction = interaction
@@ -170,8 +169,8 @@ class MemberContext {
                 { 
                     name: `Submitted Demo Day presentation for ${this.currentVoyage.number}:`, 
                     value: this.isDemoDaySignupSubmitted? "Yes" : "No",
-                    inline: true },
-    
+                    inline: true
+                },
             )
             .setThumbnail('https://imgur.com/EII19bn.png');
     }
@@ -350,13 +349,7 @@ class MemberContext {
             console.debug(`No demo day submissions found for user with Discord ID ${this.discordId} and Voyage ${this.currentVoyage.number}`);
             return
         }
-
-        // Our process is for only one team member to submit a Demo Day
-        // form.
-
-        // Edge case: This doesn't report on the Demo Day status
-        // for the current Voyage until it ends. One solution is to report on
-        // the current Voyage if it's past Sprint 5
+        
         this.isDemoDaySignupSubmitted = true;
     }
 
