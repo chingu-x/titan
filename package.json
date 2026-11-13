@@ -5,8 +5,12 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
+<<<<<<< HEAD
     "test": "vitest run",
     "test:watch": "vitest"
+=======
+    "test": "jest"
+>>>>>>> c568a2c2dd4ba6f30cfc64380607bdc6ecb30f75
   },
   "author": "Ruben Nienhuis",
   "license": "ISC",
@@ -16,7 +20,12 @@
     "dotenv": "^16.3.1"
   },
   "devDependencies": {
+<<<<<<< HEAD
     "nodemon": "^3.1.14",
     "vitest": "^5.1.0"
+=======
+    "jest": "^30.5.2",
+    "nodemon": "^3.1.14"
+>>>>>>> c568a2c2dd4ba6f30cfc64380607bdc6ecb30f75
   }
 }
