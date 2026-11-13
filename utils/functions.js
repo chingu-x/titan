@@ -1,4 +1,4 @@
-const {base} = require("../handlers/airtable");
+import { base } from '../handlers/airtable.js';
 
 async function getVoyages() {
     const voyages = await base('Schedules').select({
@@ -38,6 +38,4 @@ async function getCurrentAndNextVoyage() {
     return { currentVoyage, nextVoyage };
 }
 
-module.exports = {
-    getCurrentAndNextVoyage,
-}
+export { getCurrentAndNextVoyage };

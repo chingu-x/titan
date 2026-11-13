@@ -1,4 +1,4 @@
-const { base } = require('../handlers/airtable.js')
+import { base } from '../handlers/airtable.js';
 
 const getApplicationsByDiscordId = async (
     discordId,
@@ -15,6 +15,4 @@ const getApplicationsByDiscordId = async (
     }
 }
 
-module.exports = {
-    getApplicationsByDiscordId
-}
+export { getApplicationsByDiscordId };

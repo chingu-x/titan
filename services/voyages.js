@@ -1,4 +1,4 @@
-const { base } = require('../handlers/airtable')
+import { base } from '../handlers/airtable.js';
 
 // Get all voyage signups for a specific voyage for a member
 const getCurrentVoyageSignupsByDiscordId = async (
@@ -31,7 +31,4 @@ const getAllVoyageSignupsByDiscordId = async (
     }
 }
 
-module.exports = {
-    getCurrentVoyageSignupsByDiscordId,
-    getAllVoyageSignupsByDiscordId,
-}
+export { getCurrentVoyageSignupsByDiscordId, getAllVoyageSignupsByDiscordId };

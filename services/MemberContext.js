@@ -1,9 +1,9 @@
-const {getCurrentAndNextVoyage} = require("../utils/functions");
-const {getAllVoyageSignupsByDiscordId} = require("./voyages");
-const {getApplicationsByDiscordId} = require("./applications");
-const { getDiscordTimestampRange } = require('../utils/timeBlocks.js');
-const {EmbedBuilder} = require("discord.js");
-const {getSoloProjectsByDiscordId} = require("./soloProjects");
+import { getCurrentAndNextVoyage } from '../utils/functions.js';
+import { getAllVoyageSignupsByDiscordId } from './voyages.js';
+import { getApplicationsByDiscordId } from './applications.js';
+import { getDiscordTimestampRange } from '../utils/timeBlocks.js';
+import { EmbedBuilder } from 'discord.js';
+import { getSoloProjectsByDiscordId } from './soloProjects.js';
 
 
 class MemberContext {
@@ -79,7 +79,7 @@ class MemberContext {
                     value: this.soloProjectData?.['GitHub ID'] ? `${this.soloProjectData['GitHub ID']}` : 'N/A',
                     inline: true
                 },
-                { name: '\u200B', value: '\u200B' },
+                { name: '​', value: '​' },
                 {
                     name: 'Discord account match',
                     value: this.applicationData?.['Discord Name'] === this.user.username
@@ -97,7 +97,7 @@ class MemberContext {
                     value: this.soloProjectTier,
                     inline: true
                 },
-                { name: '\u200B', value: '\u200B' },
+                { name: '​', value: '​' },
             )
             .addFields(
                 {
@@ -110,7 +110,7 @@ class MemberContext {
                     value: this.getStatusMatchText('Discord Name'),
                     inline: true
                 },
-                { name: '\u200B', value: '\u200B' },
+                { name: '​', value: '​' },
             )
             .addFields(
                 {
@@ -120,7 +120,7 @@ class MemberContext {
                 },
                 { name: `Tier and Team`, value: this.currentVoyageSignupTierTeam, inline: true },
                 { name: `Role`, value: this.currentVoyageSignupRole, inline: true },
-                { name: '\u200B', value: '\u200B' },
+                { name: '​', value: '​' },
             )
             .addFields(
                 {
@@ -137,7 +137,7 @@ class MemberContext {
                         'N/A',
                     inline: true
                 },
-                { name: '\u200B', value: '\u200B' },
+                { name: '​', value: '​' },
             )
             .addFields(
                 {
@@ -293,6 +293,4 @@ class MemberContext {
     }
 }
 
-module.exports = {
-    MemberContext
-};
+export { MemberContext };

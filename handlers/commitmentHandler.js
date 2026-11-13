@@ -1,6 +1,6 @@
-const { base } = require('./airtable.js');
-const { EmbedBuilder, ActionRowBuilder } = require('discord.js');
-const { createFinalYesButton, createFinalNoButton } = require('../handlers/buttons.js');
+import { base } from './airtable.js';
+import { EmbedBuilder, ActionRowBuilder } from 'discord.js';
+import { createFinalYesButton, createFinalNoButton } from '../handlers/buttons.js';
 
 async function handleCommitmentButton(interaction) {
     try {
@@ -12,7 +12,7 @@ async function handleCommitmentButton(interaction) {
         }
 
         if (interaction.customId === 'commitment_yes') {
-            
+
             const embed = new EmbedBuilder()
                 .setColor('#6DE194')
                 .setTitle('Voyage Commitments')
@@ -68,7 +68,7 @@ async function handleCommitmentButton(interaction) {
             }
         } catch (error) {
         console.error('Error updating confirmation form status:', error);
-    
+
         if (interaction.replied || interaction.deferred) {
             await interaction.followUp({ content: 'An error occurred while updating your confirmation status. Please try again later.', ephemeral: true });
         } else {
@@ -77,4 +77,4 @@ async function handleCommitmentButton(interaction) {
     }
 }
 
-module.exports = { handleCommitmentButton };
+export { handleCommitmentButton };

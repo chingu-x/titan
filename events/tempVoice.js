@@ -1,4 +1,4 @@
-const { ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
+import { ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
 
 // Define the createMenu function
 async function createMenu(client, categoryIds, channelId) {
@@ -35,7 +35,7 @@ async function createMenu(client, categoryIds, channelId) {
             // Compare the numbers
             return numA - numB;
         });
-        
+
         // Map each text channel to an option for the select menu
         const options = textChannels.map(channel => ({
             label: channel.name,
@@ -116,9 +116,9 @@ async function createMenu(client, categoryIds, channelId) {
         }
 
         // Try to find an existing voice channel with the same name in the category
-        const existingVoiceChannel = interaction.guild.channels.cache.find(channel => 
-            channel.type === 2 && 
-            channel.parentId === textChannel.parentId && 
+        const existingVoiceChannel = interaction.guild.channels.cache.find(channel =>
+            channel.type === 2 &&
+            channel.parentId === textChannel.parentId &&
             channel.name.trim().toLowerCase() === textChannel.name.trim().toLowerCase()
         );
 
@@ -126,11 +126,11 @@ async function createMenu(client, categoryIds, channelId) {
         if (existingVoiceChannel) {
             await interaction.editReply({ content: `A voice channel for ${textChannel.name} already exists.`});
             await interaction.followUp({ content: `**Here is the link to the voice channel:** discord://discordapp.com/channels/${interaction.guild.id}/${existingVoiceChannel.id}`, ephemeral: true });
-            
+
             const categoryId = interaction.customId.split('-')[1];
             const row = rows.find(row => row.components[0].customId === `menu-${categoryId}`);
             await interaction.message.edit(row);
-            
+
             return;
         }
 
@@ -175,6 +175,4 @@ async function createMenu(client, categoryIds, channelId) {
     });
 }
 
-module.exports = createMenu;
-
-
+export default createMenu;

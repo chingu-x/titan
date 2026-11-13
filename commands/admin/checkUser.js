@@ -1,7 +1,7 @@
-const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField } = require('discord.js');
-const {MemberContext} = require("../../services/MemberContext");
+import { SlashCommandBuilder, EmbedBuilder, PermissionsBitField } from 'discord.js';
+import { MemberContext } from '../../services/MemberContext.js';
 
-module.exports = {
+export default {
     data: new SlashCommandBuilder()
         .setName('checkuser')
         .setDescription('Provides information about a user.')
