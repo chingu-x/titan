@@ -2,11 +2,15 @@ vi.mock('../utils/functions.js')
 vi.mock('../services/voyages.js')
 vi.mock('../services/applications.js')
 vi.mock('../services/soloProjects.js')
+vi.mock('../services/voyageProjects.js')
+vi.mock('../services/demoDaySignups.js')
 
-import { getCurrentAndNextVoyage } from '../utils/functions.js'
+import { getCurrentAndNextVoyage, getCurrentAndPriorVoyage } from '../utils/functions.js'
 import { getAllVoyageSignupsByDiscordId } from '../services/voyages.js'
 import { getApplicationsByDiscordId } from '../services/applications.js'
 import { getSoloProjectsByDiscordId } from '../services/soloProjects.js'
+import { getVoyageProjectsByDiscordId } from '../services/voyageProjects.js'
+import { getDemoDaySignupsByDiscordId } from '../services/demoDaySignups.js'
 import { MemberContext } from '../services/MemberContext.js'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -314,8 +318,11 @@ describe('MemberContext.loadApplications', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         getCurrentAndNextVoyage.mockResolvedValue({ currentVoyage: CURRENT_VOYAGE, nextVoyage: NEXT_VOYAGE })
+        getCurrentAndPriorVoyage.mockResolvedValue({ currentVoyage: null, priorVoyage: null })
         getAllVoyageSignupsByDiscordId.mockResolvedValue([])
         getSoloProjectsByDiscordId.mockResolvedValue([])
+        getVoyageProjectsByDiscordId.mockResolvedValue([])
+        getDemoDaySignupsByDiscordId.mockResolvedValue([])
     })
 
     test('applicationData is null when no applications are returned', async () => {
@@ -390,8 +397,11 @@ describe('MemberContext.loadSoloProjects', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         getCurrentAndNextVoyage.mockResolvedValue({ currentVoyage: CURRENT_VOYAGE, nextVoyage: NEXT_VOYAGE })
+        getCurrentAndPriorVoyage.mockResolvedValue({ currentVoyage: null, priorVoyage: null })
         getApplicationsByDiscordId.mockResolvedValue([])
         getAllVoyageSignupsByDiscordId.mockResolvedValue([])
+        getVoyageProjectsByDiscordId.mockResolvedValue([])
+        getDemoDaySignupsByDiscordId.mockResolvedValue([])
     })
 
     test('soloProjectData is null when no solo projects are returned (Test case 2)', async () => {
@@ -423,8 +433,11 @@ describe('MemberContext.loadSoloProjects', () => {
 describe('MemberContext.loadVoyageSignups', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        getCurrentAndPriorVoyage.mockResolvedValue({ currentVoyage: null, priorVoyage: null })
         getApplicationsByDiscordId.mockResolvedValue([])
         getSoloProjectsByDiscordId.mockResolvedValue([])
+        getVoyageProjectsByDiscordId.mockResolvedValue([])
+        getDemoDaySignupsByDiscordId.mockResolvedValue([])
     })
 
     test('currentVoyageSignupData is null when no signups exist (Test case 11)', async () => {

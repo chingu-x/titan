@@ -1,9 +1,11 @@
-import { getCurrentAndNextVoyage } from '../utils/functions.js';
+import { getCurrentAndNextVoyage, getCurrentAndPriorVoyage } from '../utils/functions.js';
 import { getAllVoyageSignupsByDiscordId } from './voyages.js';
 import { getApplicationsByDiscordId } from './applications.js';
 import { getDiscordTimestampRange } from '../utils/timeBlocks.js';
 import { EmbedBuilder } from 'discord.js';
 import { getSoloProjectsByDiscordId } from './soloProjects.js';
+import { getVoyageProjectsByDiscordId } from './voyageProjects.js';
+import { getDemoDaySignupsByDiscordId } from './demoDaySignups.js';
 
 
 class MemberContext {
@@ -34,6 +36,11 @@ class MemberContext {
         this.nextVoyageSignupText = `No :x: [Click Here to Signup](${ process.env.VOYAGE_SIGNUP_FORM })`;
 
         this.commitmentFormText = 'N/A';
+
+        this.voyageProjectVoyage = null;
+        this.voyageProjectText = `No :x:`;
+        this.demoDayVoyage = null;
+        this.demoDayText = `No :x:`;
     }
 
     static async create(interaction, discordId) {
@@ -173,6 +180,12 @@ class MemberContext {
                     },
                 ] : [])
             )
+            .addFields(
+                ...(this.voyageProjectVoyage ? [
+                    { name: `Submitted Project for ${this.voyageProjectVoyage.number}`, value: this.voyageProjectText, inline: true },
+                    { name: `Submitted Demo Day presentation for ${this.voyageProjectVoyage.number}:`, value: this.demoDayText, inline: true },
+                ] : [])
+            )
             .setThumbnail('https://imgur.com/EII19bn.png');
     }
 
@@ -290,75 +303,47 @@ class MemberContext {
     }
 
     async selectVoyageForClosureInfo(currentVoyage, priorVoyage) {
-        // Edge case: choosing the prior Voyage won't report on the Voyage 
-        // Project status for the current Voyage until it ends. The solution 
-        // we have chosen for this is to report on the current Voyage if 
-        // Sprint 5 has started and the Voyage hasn't ended. Once the Voyage
-        // ends we use the prior Voyage.
-        const currentDate = new Date();
-        if (currentVoyage !== null) {
-            if (currentDate >= currentVoyage.sprint5StartDate && currentDate <= currentVoyage.endDate) {
-               return currentVoyage 
-            } else {
-               return priorVoyage
-            }
+        if (currentVoyage === null) {
+            return priorVoyage;
         }
-        return priorVoyage
+        const currentDate = new Date();
+        if (currentDate >= currentVoyage.sprint5StartDate) {
+            return currentVoyage;
+        }
+        return priorVoyage ?? currentVoyage;
     }
 
     async loadVoyageProjects() {
-        // Our process is for only one team member to submit a Voyage Project
-        // form and an automated workflow is run to replicate it in that table
-        // for each team member. Due to this a member may not have actually
-        // submitted the form, but we'll still indicate that they have if one
-        // is found.
         const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
         if (currentVoyage === null && priorVoyage === null) {
-            console.debug(`No current or prior Voyage found`);
-            return
+            return;
         }
-        this.voyageProjectVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage)
-
+        this.voyageProjectVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage);
         const voyageProjects = await getVoyageProjectsByDiscordId(
-            this.voyageProjectVoyage.number, this.discordId,
-            [
-                'Discord ID (from Application link)',
-                'Email',
-                'Completed Voyage?',
-                'Completion Status'
-            ]
-        )
-
+            this.voyageProjectVoyage.number,
+            this.discordId,
+            ['Discord ID (from Application link)', 'What is your Voyage?']
+        );
         if (!voyageProjects?.length) {
-            console.debug(`No voyage projects found for user with Discord ID ${this.discordId} and Voyage ${this.voyageProjectVoyage.number}`);
-            return
+            return;
         }
-
         this.voyageProjectText = 'Yes <a:check:1209501960139702363>';
     }
 
     async loadDemoDaySignups() {
         const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
         if (currentVoyage === null && priorVoyage === null) {
-            console.debug(`No current or prior Voyage found`);
-            return
+            return;
         }
-        this.demoDayVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage)
-
+        this.demoDayVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage);
         const demoDaySubmissions = await getDemoDaySignupsByDiscordId(
-            this.demoDayVoyage.number, this.discordId,
-            [
-                'Discord ID (from Application link)',
-                'Email',
-                'Voyage'
-            ]
-        )
-
+            this.demoDayVoyage.number,
+            this.discordId,
+            ['Discord ID (from Application link)', 'Voyage']
+        );
         if (!demoDaySubmissions?.length) {
-            console.debug(`No demo day submissions found for user with Discord ID ${this.discordId} and Voyage ${this.demoDayVoyage.number}`);
-            return
+            return;
         }
-        
         this.demoDayText = 'Yes <a:check:1209501960139702363>';
     }
 

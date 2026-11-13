@@ -1,21 +1,13 @@
-const { base } = require('../handlers/airtable.js')
+import { base } from '../handlers/airtable.js';
 
-const getVoyageProjectsByDiscordId = async (
-    voyageName,
-    discordId,
-    fields = ['*']
-) => {
-    try{
+const getVoyageProjectsByDiscordId = async (voyageName, discordId, fields = ['*']) => {
+    try {
         const voyageProjects = await base('Voyage Projects').select({
-            filterByFormula: `AND({Discord ID (from Application link)} = '${ discordId }', {What is your Voyage?} = '${ voyageName }')`,
+            filterByFormula: `AND({Discord ID (from Application link)} = '${discordId}', {What is your Voyage?} = '${voyageName}')`,
             fields
         }).firstPage();
         return voyageProjects;
-    }catch (e) {
-        console.log("[getVoyageProjectsByDiscordId] error:", e)
-    }
+    } catch(e) { console.log("[getVoyageProjectsByDiscordId] error:", e) }
 }
 
-module.exports = {
-    getVoyageProjectsByDiscordId
-}
+export { getVoyageProjectsByDiscordId };

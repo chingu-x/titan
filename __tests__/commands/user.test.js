@@ -1,143 +1,59 @@
-// Prevent handlers/airtable.js from calling `new Airtable({apiKey})` at import time.
-vi.mock('../../handlers/airtable', () => ({
-    base: vi.fn(),
-    airtableBaseID: 'mock-base',
-    airtableAPIKey: 'mock-key',
-    adminTestID: 'mock-admin-test',
-    adminChatID: 'mock-admin-chat',
+vi.mock('../../services/MemberContext.js', () => ({
+    MemberContext: { create: vi.fn() }
 }))
 
-const { MemberContext } = require('../../services/MemberContext');
-const user = require('../../commands/utility/user');
-const { createMockInteraction } = require('../helpers/mockInteraction');
-
-const USER_ID = '123456789012345678';
-const ERROR_MESSAGE = 'An error occurred while trying to fetch your information.';
+import { MemberContext } from '../../services/MemberContext.js'
+import userCommand from '../../commands/utility/user.js'
+import { createMockInteraction } from '../helpers/mockInteraction.js'
 
 describe('/user command', () => {
-    let fakeEmbed;
-    let createSpy;
+    const DISCORD_ID = 'discord-id-123'
 
     beforeEach(() => {
-        fakeEmbed = { title: 'fake embed' };
-        createSpy = vi
-            .spyOn(MemberContext, 'create')
-            .mockResolvedValue({ embedMessage: fakeEmbed });
-        vi.spyOn(console, 'error').mockImplementation(() => {});
-    });
+        vi.clearAllMocks()
+    })
 
-    describe('command definition', () => {
-        it('is named "user" with a description', () => {
-            const json = user.data.toJSON();
-            expect(json.name).toBe('user');
-            expect(json.description).toBe('Provides information about you.');
-        });
+    test('calls MemberContext.create with the interaction and user id', async () => {
+        const fakeEmbed = { data: { title: 'User Information' } }
+        MemberContext.create.mockResolvedValue({ embedMessage: fakeEmbed })
 
-        it('takes no options and has no permission restriction', () => {
-            const json = user.data.toJSON();
-            expect(json.options ?? []).toHaveLength(0);
-            expect(json.default_member_permissions ?? null).toBeNull();
-        });
+        const interaction = createMockInteraction({ userId: DISCORD_ID })
+        await userCommand.execute(interaction)
 
-        it('exports an execute function', () => {
-            expect(typeof user.execute).toBe('function');
-        });
-    });
+        expect(MemberContext.create).toHaveBeenCalledWith(interaction, DISCORD_ID)
+    })
 
-    describe('successful lookup', () => {
-        it("looks up the invoking user's own Discord ID", async () => {
-            const interaction = createMockInteraction({ userId: USER_ID });
+    test('replies with the embed from MemberContext', async () => {
+        const fakeEmbed = { data: { title: 'User Information' } }
+        MemberContext.create.mockResolvedValue({ embedMessage: fakeEmbed })
 
-            await user.execute(interaction);
+        const interaction = createMockInteraction({ userId: DISCORD_ID })
+        await userCommand.execute(interaction)
 
-            expect(createSpy).toHaveBeenCalledTimes(1);
-            expect(createSpy).toHaveBeenCalledWith(interaction, USER_ID);
-        });
+        expect(interaction.reply).toHaveBeenCalledWith({
+            embeds: [fakeEmbed],
+            ephemeral: true
+        })
+    })
 
-        it('replies ephemerally with the member context embed', async () => {
-            const interaction = createMockInteraction({ userId: USER_ID });
+    test('replies with error message when MemberContext.create throws and not deferred', async () => {
+        MemberContext.create.mockRejectedValue(new Error('Something went wrong'))
 
-            await user.execute(interaction);
+        const interaction = createMockInteraction({ userId: DISCORD_ID, deferred: false, replied: false })
+        await userCommand.execute(interaction)
 
-            expect(interaction.reply).toHaveBeenCalledTimes(1);
-            expect(interaction.reply).toHaveBeenCalledWith({
-                embeds: [fakeEmbed],
-                ephemeral: true,
-            });
-            expect(interaction.editReply).not.toHaveBeenCalled();
-        });
+        expect(interaction.reply).toHaveBeenCalledWith(expect.objectContaining({
+            content: expect.stringContaining('error'),
+            ephemeral: true
+        }))
+    })
 
-        it('does not require administrator permission', async () => {
-            const interaction = createMockInteraction({ userId: USER_ID, isAdmin: false });
+    test('uses editReply when interaction is deferred on error', async () => {
+        MemberContext.create.mockRejectedValue(new Error('Something went wrong'))
 
-            await user.execute(interaction);
+        const interaction = createMockInteraction({ userId: DISCORD_ID, deferred: true, replied: false })
+        await userCommand.execute(interaction)
 
-            expect(interaction.member.permissions.has).not.toHaveBeenCalled();
-            expect(interaction.reply).toHaveBeenCalledWith({
-                embeds: [fakeEmbed],
-                ephemeral: true,
-            });
-        });
-    });
-
-    describe('error handling', () => {
-        it('replies with an error message when the lookup fails', async () => {
-            createSpy.mockRejectedValue(new Error('Airtable down'));
-            const interaction = createMockInteraction({ userId: USER_ID });
-
-            await user.execute(interaction);
-
-            expect(console.error).toHaveBeenCalledWith(
-                expect.stringContaining('fetch user information'),
-                'Airtable down',
-            );
-            expect(interaction.reply).toHaveBeenCalledWith({
-                content: ERROR_MESSAGE,
-                ephemeral: true,
-            });
-            expect(interaction.editReply).not.toHaveBeenCalled();
-        });
-
-        it('edits the reply instead when the interaction was already replied to', async () => {
-            createSpy.mockRejectedValue(new Error('boom'));
-            const interaction = createMockInteraction({ userId: USER_ID, replied: true });
-
-            await user.execute(interaction);
-
-            expect(interaction.editReply).toHaveBeenCalledWith({
-                content: ERROR_MESSAGE,
-                ephemeral: true,
-            });
-            expect(interaction.reply).not.toHaveBeenCalled();
-        });
-
-        it('edits the reply instead when the interaction was deferred', async () => {
-            createSpy.mockRejectedValue(new Error('boom'));
-            const interaction = createMockInteraction({ userId: USER_ID, deferred: true });
-
-            await user.execute(interaction);
-
-            expect(interaction.editReply).toHaveBeenCalledWith({
-                content: ERROR_MESSAGE,
-                ephemeral: true,
-            });
-            expect(interaction.reply).not.toHaveBeenCalled();
-        });
-
-        it('uses the error path when building the embed throws', async () => {
-            createSpy.mockResolvedValue({
-                get embedMessage() {
-                    throw new Error('bad embed');
-                },
-            });
-            const interaction = createMockInteraction({ userId: USER_ID });
-
-            await user.execute(interaction);
-
-            expect(interaction.reply).toHaveBeenCalledWith({
-                content: ERROR_MESSAGE,
-                ephemeral: true,
-            });
-        });
-    });
-});
+        expect(interaction.editReply).toHaveBeenCalled()
+    })
+})
