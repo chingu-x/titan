@@ -1,5 +1,11 @@
 // Prevent handlers/airtable.js from calling `new Airtable({apiKey})` at import time.
-jest.mock('airtable', () => jest.fn(() => ({ base: jest.fn() })))
+vi.mock('../../handlers/airtable', () => ({
+    base: vi.fn(),
+    airtableBaseID: 'mock-base',
+    airtableAPIKey: 'mock-key',
+    adminTestID: 'mock-admin-test',
+    adminChatID: 'mock-admin-chat',
+}))
 
 const { MemberContext } = require('../../services/MemberContext');
 const user = require('../../commands/utility/user');
@@ -14,14 +20,10 @@ describe('/user command', () => {
 
     beforeEach(() => {
         fakeEmbed = { title: 'fake embed' };
-        createSpy = jest
+        createSpy = vi
             .spyOn(MemberContext, 'create')
             .mockResolvedValue({ embedMessage: fakeEmbed });
-        jest.spyOn(console, 'error').mockImplementation(() => {});
-    });
-
-    afterEach(() => {
-        jest.restoreAllMocks();
+        vi.spyOn(console, 'error').mockImplementation(() => {});
     });
 
     describe('command definition', () => {

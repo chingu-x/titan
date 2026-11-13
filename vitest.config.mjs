@@ -4,7 +4,11 @@ export default defineConfig({
     test: {
         environment: 'node',
         globals: true,
-        include: ['tests/**/*.test.mjs'],
+        include: ['__tests__/**/*.test.js', '__tests__/**/*.test.mjs'],
         restoreMocks: true,
+        env: {
+            AIRTABLE_API_KEY: 'fake-test-key',
+            AIRTABLE_BASE: 'fake-test-base',
+        },
     },
 });

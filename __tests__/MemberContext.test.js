@@ -1,15 +1,39 @@
-// Mock all Airtable-backed services with factory functions so Jest never
-// loads the real modules (which trigger an Airtable connection at import time).
-jest.mock('../utils/functions', () => ({ getCurrentAndNextVoyage: jest.fn() }))
-jest.mock('../services/voyages', () => ({ getAllVoyageSignupsByDiscordId: jest.fn() }))
-jest.mock('../services/applications', () => ({ getApplicationsByDiscordId: jest.fn() }))
-jest.mock('../services/soloProjects', () => ({ getSoloProjectsByDiscordId: jest.fn() }))
+// vi.mock() does not intercept CJS require() calls in this codebase.
+// Instead we patch Node's require.cache BEFORE MemberContext loads so its
+// destructured service imports capture our vi.fn() stubs.
 
-const { getCurrentAndNextVoyage } = require('../utils/functions')
-const { getAllVoyageSignupsByDiscordId } = require('../services/voyages')
-const { getApplicationsByDiscordId } = require('../services/applications')
-const { getSoloProjectsByDiscordId } = require('../services/soloProjects')
+const path = require('path')
+
+const mockGetCurrentAndNextVoyage = vi.fn()
+const mockGetCurrentAndPriorVoyage = vi.fn()
+const mockGetAllVoyageSignupsByDiscordId = vi.fn()
+const mockGetApplicationsByDiscordId = vi.fn()
+const mockGetSoloProjectsByDiscordId = vi.fn()
+const mockGetVoyageProjectsByDiscordId = vi.fn()
+const mockGetDemoDaySignupsByDiscordId = vi.fn()
+
+function patchCache(relPath, exports) {
+    const absPath = path.resolve(__dirname, relPath)
+    require.cache[absPath] = { id: absPath, filename: absPath, loaded: true, exports }
+}
+
+patchCache('../utils/functions.js', {
+    getCurrentAndNextVoyage: mockGetCurrentAndNextVoyage,
+    getCurrentAndPriorVoyage: mockGetCurrentAndPriorVoyage,
+})
+patchCache('../services/voyages.js', { getAllVoyageSignupsByDiscordId: mockGetAllVoyageSignupsByDiscordId })
+patchCache('../services/applications.js', { getApplicationsByDiscordId: mockGetApplicationsByDiscordId })
+patchCache('../services/soloProjects.js', { getSoloProjectsByDiscordId: mockGetSoloProjectsByDiscordId })
+patchCache('../services/voyageProjects.js', { getVoyageProjectsByDiscordId: mockGetVoyageProjectsByDiscordId })
+patchCache('../services/demoDaySignups.js', { getDemoDaySignupsByDiscordId: mockGetDemoDaySignupsByDiscordId })
+
 const { MemberContext } = require('../services/MemberContext')
+
+// Aliases used in tests
+const getCurrentAndNextVoyage = mockGetCurrentAndNextVoyage
+const getAllVoyageSignupsByDiscordId = mockGetAllVoyageSignupsByDiscordId
+const getApplicationsByDiscordId = mockGetApplicationsByDiscordId
+const getSoloProjectsByDiscordId = mockGetSoloProjectsByDiscordId
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -26,7 +50,7 @@ function makeInteraction(username = DISCORD_USERNAME) {
     return {
         client: {
             users: {
-                fetch: jest.fn().mockResolvedValue({ username, id: DISCORD_ID })
+                fetch: vi.fn().mockResolvedValue({ username, id: DISCORD_ID })
             }
         }
     }
@@ -53,6 +77,13 @@ function buildContext(overrides = {}) {
     // These default to 'N/A' (not null) because EmbedBuilder rejects null field values
     ctx.currentVoyageSignupTierTeam = overrides.currentVoyageSignupTierTeam ?? 'N/A'
     ctx.currentVoyageSignupRole = overrides.currentVoyageSignupRole ?? 'N/A'
+    // voyageProjectVoyage defaults to a voyage object so embedMessage doesn't crash on null
+    ctx.voyageProjectVoyage = overrides.voyageProjectVoyage !== undefined
+        ? overrides.voyageProjectVoyage
+        : { number: CURRENT_VOYAGE }
+    ctx.demoDayVoyage = overrides.demoDayVoyage !== undefined
+        ? overrides.demoDayVoyage
+        : { number: CURRENT_VOYAGE }
     return ctx
 }
 
@@ -307,10 +338,13 @@ describe('MemberContext.embedMessage — Test cases 15–16: Team assignment dis
 
 describe('MemberContext.loadApplications', () => {
     beforeEach(() => {
-        jest.clearAllMocks()
-        getCurrentAndNextVoyage.mockResolvedValue({ currentVoyage: CURRENT_VOYAGE, nextVoyage: NEXT_VOYAGE })
-        getAllVoyageSignupsByDiscordId.mockResolvedValue([])
-        getSoloProjectsByDiscordId.mockResolvedValue([])
+        vi.clearAllMocks()
+        mockGetCurrentAndNextVoyage.mockResolvedValue({ currentVoyage: CURRENT_VOYAGE, nextVoyage: NEXT_VOYAGE })
+        mockGetCurrentAndPriorVoyage.mockResolvedValue({ currentVoyage: null, priorVoyage: null })
+        mockGetAllVoyageSignupsByDiscordId.mockResolvedValue([])
+        mockGetSoloProjectsByDiscordId.mockResolvedValue([])
+        mockGetVoyageProjectsByDiscordId.mockResolvedValue([])
+        mockGetDemoDaySignupsByDiscordId.mockResolvedValue([])
     })
 
     test('applicationData is null when no applications are returned', async () => {
@@ -383,10 +417,13 @@ describe('MemberContext.loadApplications', () => {
 
 describe('MemberContext.loadSoloProjects', () => {
     beforeEach(() => {
-        jest.clearAllMocks()
-        getCurrentAndNextVoyage.mockResolvedValue({ currentVoyage: CURRENT_VOYAGE, nextVoyage: NEXT_VOYAGE })
+        vi.clearAllMocks()
+        mockGetCurrentAndNextVoyage.mockResolvedValue({ currentVoyage: CURRENT_VOYAGE, nextVoyage: NEXT_VOYAGE })
+        mockGetCurrentAndPriorVoyage.mockResolvedValue({ currentVoyage: null, priorVoyage: null })
         getApplicationsByDiscordId.mockResolvedValue([])
-        getAllVoyageSignupsByDiscordId.mockResolvedValue([])
+        mockGetAllVoyageSignupsByDiscordId.mockResolvedValue([])
+        mockGetVoyageProjectsByDiscordId.mockResolvedValue([])
+        mockGetDemoDaySignupsByDiscordId.mockResolvedValue([])
     })
 
     test('soloProjectData is null when no solo projects are returned (Test case 2)', async () => {
@@ -417,9 +454,12 @@ describe('MemberContext.loadSoloProjects', () => {
 
 describe('MemberContext.loadVoyageSignups', () => {
     beforeEach(() => {
-        jest.clearAllMocks()
+        vi.clearAllMocks()
+        mockGetCurrentAndPriorVoyage.mockResolvedValue({ currentVoyage: null, priorVoyage: null })
         getApplicationsByDiscordId.mockResolvedValue([])
         getSoloProjectsByDiscordId.mockResolvedValue([])
+        mockGetVoyageProjectsByDiscordId.mockResolvedValue([])
+        mockGetDemoDaySignupsByDiscordId.mockResolvedValue([])
     })
 
     test('currentVoyageSignupData is null when no signups exist (Test case 11)', async () => {

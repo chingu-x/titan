@@ -161,16 +161,18 @@ class MemberContext {
                 { name: '\u200B', value: '\u200B' },
             )
             .addFields(
-                {
-                    name: `Submitted Project for ${this.voyageProjectVoyage.number}`,
-                    value: this.voyageProjectText,
-                    inline: true
-                },
-                { 
-                    name: `Submitted Demo Day presentation for ${this.currentVoyage}:`, 
-                    value: this.demoDayText,
-                    inline: true
-                },
+                ...(this.voyageProjectVoyage ? [
+                    {
+                        name: `Submitted Project for ${this.voyageProjectVoyage.number}`,
+                        value: this.voyageProjectText,
+                        inline: true
+                    },
+                    {
+                        name: `Submitted Demo Day presentation for ${this.currentVoyage}:`,
+                        value: this.demoDayText,
+                        inline: true
+                    },
+                ] : [])
             )
             .setThumbnail('https://imgur.com/EII19bn.png');
     }
@@ -186,7 +188,7 @@ class MemberContext {
             ]
         );
 
-        if(applications.length===0) {
+        if(!applications?.length) {
             console.debug(`No application found for user with Discord ID ${this.discordId}`);
             return
         }
@@ -219,7 +221,7 @@ class MemberContext {
             ]
         )
 
-        if (soloProjects?.length === 0) {
+        if (!soloProjects?.length) {
             console.debug(`No solo projects found for user with Discord ID ${this.discordId}`);
             return
         }

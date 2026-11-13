@@ -13,19 +13,19 @@ function createMockInteraction({
         user: { id: userId },
         member: {
             permissions: {
-                has: jest.fn(() => isAdmin),
+                has: vi.fn(() => isAdmin),
             },
         },
         options: {
-            getString: jest.fn((name) => options[name] ?? null),
+            getString: vi.fn((name) => options[name] ?? null),
         },
         client: {
-            users: { fetch: jest.fn() },
+            users: { fetch: vi.fn() },
         },
         deferred,
         replied,
-        reply: jest.fn().mockResolvedValue(undefined),
-        editReply: jest.fn().mockResolvedValue(undefined),
+        reply: vi.fn().mockResolvedValue(undefined),
+        editReply: vi.fn().mockResolvedValue(undefined),
     };
 }
 
