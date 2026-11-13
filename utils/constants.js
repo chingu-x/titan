@@ -1,4 +1,4 @@
-const { getCurrentAndNextVoyage } = require('../utils/functions');
+import { getCurrentAndNextVoyage } from '../utils/functions.js';
 
 async function getNextVoyage() {
     const { nextVoyage } = await getCurrentAndNextVoyage();
@@ -13,4 +13,4 @@ getNextVoyage().then(number => {
     console.error('Error fetching next voyage:', error);
 });
 
-module.exports = { getNextVoyage, nextVoyageNumber };
+export { getNextVoyage, nextVoyageNumber };

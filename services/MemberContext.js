@@ -1,9 +1,11 @@
-const {getCurrentAndNextVoyage} = require("../utils/functions");
-const {getAllVoyageSignupsByDiscordId} = require("./voyages");
-const {getApplicationsByDiscordId} = require("./applications");
-const { getDiscordTimestampRange } = require('../utils/timeBlocks.js');
-const {EmbedBuilder} = require("discord.js");
-const {getSoloProjectsByDiscordId} = require("./soloProjects");
+import { getCurrentAndNextVoyage, getCurrentAndPriorVoyage } from '../utils/functions.js';
+import { getAllVoyageSignupsByDiscordId } from './voyages.js';
+import { getApplicationsByDiscordId } from './applications.js';
+import { getDiscordTimestampRange } from '../utils/timeBlocks.js';
+import { EmbedBuilder } from 'discord.js';
+import { getSoloProjectsByDiscordId } from './soloProjects.js';
+import { getVoyageProjectsByDiscordId } from './voyageProjects.js';
+import { getDemoDaySignupsByDiscordId } from './demoDaySignups.js';
 
 
 class MemberContext {
@@ -24,11 +26,21 @@ class MemberContext {
         this.evaluationStatus = null;
         this.evaluationEmoji = ':x:';
 
+        this.voyageProjectVoyage = null;
+        this.voyageProjectText = `No :x:`
+        this.demoDayVoyage = null;
+        this.demoDayText = `No :x:`;
+
         this.currentVoyageSignupData = null;
         this.nextVoyageSignupData = null;
         this.nextVoyageSignupText = `No :x: [Click Here to Signup](${ process.env.VOYAGE_SIGNUP_FORM })`;
 
         this.commitmentFormText = 'N/A';
+
+        this.voyageProjectVoyage = null;
+        this.voyageProjectText = `No :x:`;
+        this.demoDayVoyage = null;
+        this.demoDayText = `No :x:`;
     }
 
     static async create(interaction, discordId) {
@@ -42,6 +54,8 @@ class MemberContext {
         await instance.loadSoloProjects()
         await instance.loadApplications()
         await instance.loadVoyageSignups()
+        await instance.loadVoyageProjects()
+        await instance.loadDemoDaySignups()
 
         return instance;
     }
@@ -79,7 +93,7 @@ class MemberContext {
                     value: this.soloProjectData?.['GitHub ID'] ? `${this.soloProjectData['GitHub ID']}` : 'N/A',
                     inline: true
                 },
-                { name: '\u200B', value: '\u200B' },
+                { name: '​', value: '​' },
                 {
                     name: 'Discord account match',
                     value: this.applicationData?.['Discord Name'] === this.user.username
@@ -97,7 +111,7 @@ class MemberContext {
                     value: this.soloProjectTier,
                     inline: true
                 },
-                { name: '\u200B', value: '\u200B' },
+                { name: '​', value: '​' },
             )
             .addFields(
                 {
@@ -110,7 +124,7 @@ class MemberContext {
                     value: this.getStatusMatchText('Discord Name'),
                     inline: true
                 },
-                { name: '\u200B', value: '\u200B' },
+                { name: '​', value: '​' },
             )
             .addFields(
                 {
@@ -120,7 +134,7 @@ class MemberContext {
                 },
                 { name: `Tier and Team`, value: this.currentVoyageSignupTierTeam, inline: true },
                 { name: `Role`, value: this.currentVoyageSignupRole, inline: true },
-                { name: '\u200B', value: '\u200B' },
+                { name: '​', value: '​' },
             )
             .addFields(
                 {
@@ -137,7 +151,7 @@ class MemberContext {
                         'N/A',
                     inline: true
                 },
-                { name: '\u200B', value: '\u200B' },
+                { name: '​', value: '​' },
             )
             .addFields(
                 {
@@ -149,7 +163,28 @@ class MemberContext {
                     name: `Commitment Form for ${this.nextVoyage}?`,
                     value: this.nextVoyageSignupData? this.commitmentFormText : 'N/A',
                     inline: true
-                }
+                },
+                { name: '\u200B', value: '\u200B' },
+            )
+            .addFields(
+                ...(this.voyageProjectVoyage ? [
+                    {
+                        name: `Submitted Project for ${this.voyageProjectVoyage.number}`,
+                        value: this.voyageProjectText,
+                        inline: true
+                    },
+                    {
+                        name: `Submitted Demo Day presentation for ${this.currentVoyage}:`,
+                        value: this.demoDayText,
+                        inline: true
+                    },
+                ] : [])
+            )
+            .addFields(
+                ...(this.voyageProjectVoyage ? [
+                    { name: `Submitted Project for ${this.voyageProjectVoyage.number}`, value: this.voyageProjectText, inline: true },
+                    { name: `Submitted Demo Day presentation for ${this.voyageProjectVoyage.number}:`, value: this.demoDayText, inline: true },
+                ] : [])
             )
             .setThumbnail('https://imgur.com/EII19bn.png');
     }
@@ -165,7 +200,7 @@ class MemberContext {
             ]
         );
 
-        if(applications.length===0) {
+        if(!applications?.length) {
             console.debug(`No application found for user with Discord ID ${this.discordId}`);
             return
         }
@@ -198,7 +233,7 @@ class MemberContext {
             ]
         )
 
-        if (soloProjects?.length === 0) {
+        if (!soloProjects?.length) {
             console.debug(`No solo projects found for user with Discord ID ${this.discordId}`);
             return
         }
@@ -209,7 +244,7 @@ class MemberContext {
     }
 
     async loadVoyageSignups() {
-// fetch the current and next voyage
+        // fetch the current and next voyage
         const { currentVoyage, nextVoyage } = await getCurrentAndNextVoyage();
         this.currentVoyage = currentVoyage;
         this.nextVoyage = nextVoyage;
@@ -267,6 +302,51 @@ class MemberContext {
             `${this.currentVoyageSignupData['Role']}` : 'N/A';
     }
 
+    async selectVoyageForClosureInfo(currentVoyage, priorVoyage) {
+        if (currentVoyage === null) {
+            return priorVoyage;
+        }
+        const currentDate = new Date();
+        if (currentDate >= currentVoyage.sprint5StartDate) {
+            return currentVoyage;
+        }
+        return priorVoyage ?? currentVoyage;
+    }
+
+    async loadVoyageProjects() {
+        const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
+        if (currentVoyage === null && priorVoyage === null) {
+            return;
+        }
+        this.voyageProjectVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage);
+        const voyageProjects = await getVoyageProjectsByDiscordId(
+            this.voyageProjectVoyage.number,
+            this.discordId,
+            ['Discord ID (from Application link)', 'What is your Voyage?']
+        );
+        if (!voyageProjects?.length) {
+            return;
+        }
+        this.voyageProjectText = 'Yes <a:check:1209501960139702363>';
+    }
+
+    async loadDemoDaySignups() {
+        const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
+        if (currentVoyage === null && priorVoyage === null) {
+            return;
+        }
+        this.demoDayVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage);
+        const demoDaySubmissions = await getDemoDaySignupsByDiscordId(
+            this.demoDayVoyage.number,
+            this.discordId,
+            ['Discord ID (from Application link)', 'Voyage']
+        );
+        if (!demoDaySubmissions?.length) {
+            return;
+        }
+        this.demoDayText = 'Yes <a:check:1209501960139702363>';
+    }
+
     /**
      * Returns the status match for a given field name.
      * @param {"Discord Name" | "Email"} fieldName - The field name to check status for.
@@ -293,6 +373,4 @@ class MemberContext {
     }
 }
 
-module.exports = {
-    MemberContext
-};
+export { MemberContext };

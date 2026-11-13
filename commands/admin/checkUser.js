@@ -1,7 +1,7 @@
-const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField } = require('discord.js');
-const {MemberContext} = require("../../services/MemberContext");
+import { SlashCommandBuilder, EmbedBuilder, PermissionsBitField } from 'discord.js';
+import { MemberContext } from '../../services/MemberContext.js';
 
-module.exports = {
+export default {
     data: new SlashCommandBuilder()
         .setName('checkuser')
         .setDescription('Provides information about a user.')
@@ -17,7 +17,15 @@ module.exports = {
         }
 
         // Get the Discord ID from the command argument
-        const discordId = interaction.options.getString('discordid');
+        const discordId = interaction.options.getString('discordid').trim();
+        if (!/^\d{17,20}$/.test(discordId)) {
+            return interaction.reply({ content: 'That is not a valid Discord ID.', ephemeral: true });
+        }
+
+        // Discord snowflake IDs are 17–19 digit numbers
+        if (!/^\d{17,19}$/.test(discordId)) {
+            return await interaction.reply({ content: 'That is not a valid Discord ID.', ephemeral: true });
+        }
 
         try {
             const memberContext = await MemberContext.create(interaction, discordId)
