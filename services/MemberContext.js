@@ -1,9 +1,11 @@
-import { getCurrentAndNextVoyage } from '../utils/functions.js';
+import { getCurrentAndNextVoyage, getCurrentAndPriorVoyage } from '../utils/functions.js';
 import { getAllVoyageSignupsByDiscordId } from './voyages.js';
 import { getApplicationsByDiscordId } from './applications.js';
 import { getDiscordTimestampRange } from '../utils/timeBlocks.js';
 import { EmbedBuilder } from 'discord.js';
 import { getSoloProjectsByDiscordId } from './soloProjects.js';
+import { getVoyageProjectsByDiscordId } from './voyageProjects.js';
+import { getDemoDaySignupsByDiscordId } from './demoDaySignups.js';
 
 
 class MemberContext {
@@ -29,6 +31,11 @@ class MemberContext {
         this.nextVoyageSignupText = `No :x: [Click Here to Signup](${ process.env.VOYAGE_SIGNUP_FORM })`;
 
         this.commitmentFormText = 'N/A';
+
+        this.voyageProjectVoyage = null;
+        this.voyageProjectText = `No :x:`;
+        this.demoDayVoyage = null;
+        this.demoDayText = `No :x:`;
     }
 
     static async create(interaction, discordId) {
@@ -42,6 +49,8 @@ class MemberContext {
         await instance.loadSoloProjects()
         await instance.loadApplications()
         await instance.loadVoyageSignups()
+        await instance.loadVoyageProjects()
+        await instance.loadDemoDaySignups()
 
         return instance;
     }
@@ -150,6 +159,12 @@ class MemberContext {
                     value: this.nextVoyageSignupData? this.commitmentFormText : 'N/A',
                     inline: true
                 }
+            )
+            .addFields(
+                ...(this.voyageProjectVoyage ? [
+                    { name: `Submitted Project for ${this.voyageProjectVoyage.number}`, value: this.voyageProjectText, inline: true },
+                    { name: `Submitted Demo Day presentation for ${this.voyageProjectVoyage.number}:`, value: this.demoDayText, inline: true },
+                ] : [])
             )
             .setThumbnail('https://imgur.com/EII19bn.png');
     }
@@ -265,6 +280,51 @@ class MemberContext {
 
         this.currentVoyageSignupRole = this.currentVoyageSignupData ?
             `${this.currentVoyageSignupData['Role']}` : 'N/A';
+    }
+
+    async selectVoyageForClosureInfo(currentVoyage, priorVoyage) {
+        if (currentVoyage === null) {
+            return priorVoyage;
+        }
+        const currentDate = new Date();
+        if (currentDate >= currentVoyage.sprint5StartDate) {
+            return currentVoyage;
+        }
+        return priorVoyage ?? currentVoyage;
+    }
+
+    async loadVoyageProjects() {
+        const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
+        if (currentVoyage === null && priorVoyage === null) {
+            return;
+        }
+        this.voyageProjectVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage);
+        const voyageProjects = await getVoyageProjectsByDiscordId(
+            this.voyageProjectVoyage.number,
+            this.discordId,
+            ['Discord ID (from Application link)', 'What is your Voyage?']
+        );
+        if (!voyageProjects?.length) {
+            return;
+        }
+        this.voyageProjectText = 'Yes <a:check:1209501960139702363>';
+    }
+
+    async loadDemoDaySignups() {
+        const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
+        if (currentVoyage === null && priorVoyage === null) {
+            return;
+        }
+        this.demoDayVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage);
+        const demoDaySubmissions = await getDemoDaySignupsByDiscordId(
+            this.demoDayVoyage.number,
+            this.discordId,
+            ['Discord ID (from Application link)', 'Voyage']
+        );
+        if (!demoDaySubmissions?.length) {
+            return;
+        }
+        this.demoDayText = 'Yes <a:check:1209501960139702363>';
     }
 
     /**
