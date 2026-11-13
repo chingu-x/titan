@@ -1,11 +1,11 @@
-const { EmbedBuilder, ActionRowBuilder } = require('discord.js');
-const { createChinguOnboardingButton } = require('../handlers/buttons.js');
+import { EmbedBuilder, ActionRowBuilder } from 'discord.js';
+import { createChinguOnboardingButton } from '../handlers/buttons.js';
 
 async function sendOnboardingMessage(client, channelId) {
-    
+
     try {
         const channel = client.channels.cache.get(channelId);
-    
+
         if (!channel) {
             console.error(`Channel with ID "${channelId}" not found.`);
             return;
@@ -44,4 +44,4 @@ async function sendOnboardingMessage(client, channelId) {
     }
 }
 
-module.exports = { sendOnboardingMessage };
+export { sendOnboardingMessage };

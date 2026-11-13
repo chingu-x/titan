@@ -1,4 +1,4 @@
-const {base} = require("../handlers/airtable");
+import { base } from '../handlers/airtable.js';
 
 async function getVoyages() {
     const voyages = await base('Schedules').select({
@@ -39,31 +39,4 @@ async function getCurrentAndNextVoyage() {
     return { currentVoyage, nextVoyage };
 }
 
-async function getCurrentAndPriorVoyage() {
-    // Note that unlike the `getCurrentAndNextVoyage` function above, this
-    // function returns the voyage object rather than just the Voyage name.
-    const voyages = await getVoyages();
-    const sortedVoyages = voyages.reverse()
-    const currentDate = new Date();
-
-    let currentVoyage = null;
-    let priorVoyage = null;
-
-    for (let i = 0; i < sortedVoyages.length; i++) {
-        const voyage = sortedVoyages[i];
-        if (currentDate >= voyage.startDate && currentDate <= voyage.endDate) {
-            currentVoyage = voyage;
-            priorVoyage = voyages[i + 1] ? voyages[i + 1]: null;
-            break;
-        } else if (currentDate > voyage.startDate) {
-            priorVoyage = voyage;
-            break;
-        }
-    }
-    return { currentVoyage, priorVoyage };
-}
-
-module.exports = {
-    getCurrentAndNextVoyage,
-    getCurrentAndPriorVoyage,
-}
+export { getCurrentAndNextVoyage };
