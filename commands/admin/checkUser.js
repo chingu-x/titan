@@ -22,6 +22,11 @@ export default {
             return interaction.reply({ content: 'That is not a valid Discord ID.', ephemeral: true });
         }
 
+        // Discord snowflake IDs are 17–19 digit numbers
+        if (!/^\d{17,19}$/.test(discordId)) {
+            return await interaction.reply({ content: 'That is not a valid Discord ID.', ephemeral: true });
+        }
+
         try {
             const memberContext = await MemberContext.create(interaction, discordId)
 
