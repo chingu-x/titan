@@ -91,12 +91,12 @@ Temporary private voice channels are created by the user inside a dedicated text
 
 ### Testing
 
-Tests use [Vitest](https://vitest.dev/) and live in the `tests/` directory. Discord and Airtable are never contacted: each test passes in a fake Discord interaction (`tests/helpers/mockInteraction.mjs`) and replaces `MemberContext.create` with a fake, so only the command's own logic is tested.
+Tests use [Jest](https://jestjs.io/) and live in the `__tests__/` directory. Discord and Airtable are never contacted: each test passes a fake Discord interaction (`__tests__/helpers/mockInteraction.js`) and replaces `MemberContext.create` with a spy, so only the command's own logic is tested. The `airtable` package is mocked at the module level to prevent it from attempting a live connection when test files are loaded.
 
 * `npm test` - run the suite once
 * `npm run test:watch` - re-run tests as files change
 
-#### `/checkuser` - `tests/commands/checkUser.test.mjs`
+#### `/checkuser` - `__tests__/commands/checkUser.test.js`
 
 | Test | Objective |
 | --- | --- |
@@ -115,7 +115,7 @@ Tests use [Vitest](https://vitest.dev/) and live in the `tests/` directory. Disc
 | edits the reply instead when the interaction was deferred | Confirm the error is sent by editing the reply when the interaction was deferred |
 | uses the error path when building the embed throws | Confirm an error while building the embed still gives a generic error reply |
 
-#### `/user` - `tests/commands/user.test.mjs`
+#### `/user` - `__tests__/commands/user.test.js`
 
 | Test | Objective |
 | --- | --- |
@@ -138,8 +138,8 @@ Tests use [Vitest](https://vitest.dev/) and live in the `tests/` directory. Disc
 
 #### Dev Dependencies
 
-* nodemon - ^3.1.4
-* vitest - ^5.1.0
+* jest - ^30.5.2
+* nodemon - ^3.1.14
 
 ### Development
 
