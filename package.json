@@ -6,8 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon index.js",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "vitest run"
   },
   "author": "Ruben Nienhuis",
   "license": "ISC",

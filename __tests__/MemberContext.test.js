@@ -1,33 +1,45 @@
-// vi.mock() does not intercept CJS require() calls in this codebase.
-// Instead we patch Node's require.cache BEFORE MemberContext loads so its
-// destructured service imports capture our vi.fn() stubs.
+// ESM-compatible test file using vi.hoisted() + vi.mock()
+// vi.hoisted() runs before vi.mock() factories, so stubs are available inside the factory.
 
-const path = require('path')
+const {
+    mockGetCurrentAndNextVoyage,
+    mockGetCurrentAndPriorVoyage,
+    mockGetAllVoyageSignupsByDiscordId,
+    mockGetApplicationsByDiscordId,
+    mockGetSoloProjectsByDiscordId,
+    mockGetVoyageProjectsByDiscordId,
+    mockGetDemoDaySignupsByDiscordId,
+} = vi.hoisted(() => ({
+    mockGetCurrentAndNextVoyage: vi.fn(),
+    mockGetCurrentAndPriorVoyage: vi.fn(),
+    mockGetAllVoyageSignupsByDiscordId: vi.fn(),
+    mockGetApplicationsByDiscordId: vi.fn(),
+    mockGetSoloProjectsByDiscordId: vi.fn(),
+    mockGetVoyageProjectsByDiscordId: vi.fn(),
+    mockGetDemoDaySignupsByDiscordId: vi.fn(),
+}))
 
-const mockGetCurrentAndNextVoyage = vi.fn()
-const mockGetCurrentAndPriorVoyage = vi.fn()
-const mockGetAllVoyageSignupsByDiscordId = vi.fn()
-const mockGetApplicationsByDiscordId = vi.fn()
-const mockGetSoloProjectsByDiscordId = vi.fn()
-const mockGetVoyageProjectsByDiscordId = vi.fn()
-const mockGetDemoDaySignupsByDiscordId = vi.fn()
-
-function patchCache(relPath, exports) {
-    const absPath = path.resolve(__dirname, relPath)
-    require.cache[absPath] = { id: absPath, filename: absPath, loaded: true, exports }
-}
-
-patchCache('../utils/functions.js', {
+vi.mock('../utils/functions.js', () => ({
     getCurrentAndNextVoyage: mockGetCurrentAndNextVoyage,
     getCurrentAndPriorVoyage: mockGetCurrentAndPriorVoyage,
-})
-patchCache('../services/voyages.js', { getAllVoyageSignupsByDiscordId: mockGetAllVoyageSignupsByDiscordId })
-patchCache('../services/applications.js', { getApplicationsByDiscordId: mockGetApplicationsByDiscordId })
-patchCache('../services/soloProjects.js', { getSoloProjectsByDiscordId: mockGetSoloProjectsByDiscordId })
-patchCache('../services/voyageProjects.js', { getVoyageProjectsByDiscordId: mockGetVoyageProjectsByDiscordId })
-patchCache('../services/demoDaySignups.js', { getDemoDaySignupsByDiscordId: mockGetDemoDaySignupsByDiscordId })
+}))
+vi.mock('../services/voyages.js', () => ({
+    getAllVoyageSignupsByDiscordId: mockGetAllVoyageSignupsByDiscordId,
+}))
+vi.mock('../services/applications.js', () => ({
+    getApplicationsByDiscordId: mockGetApplicationsByDiscordId,
+}))
+vi.mock('../services/soloProjects.js', () => ({
+    getSoloProjectsByDiscordId: mockGetSoloProjectsByDiscordId,
+}))
+vi.mock('../services/voyageProjects.js', () => ({
+    getVoyageProjectsByDiscordId: mockGetVoyageProjectsByDiscordId,
+}))
+vi.mock('../services/demoDaySignups.js', () => ({
+    getDemoDaySignupsByDiscordId: mockGetDemoDaySignupsByDiscordId,
+}))
 
-const { MemberContext } = require('../services/MemberContext')
+import { MemberContext } from '../services/MemberContext.js'
 
 // Aliases used in tests
 const getCurrentAndNextVoyage = mockGetCurrentAndNextVoyage
