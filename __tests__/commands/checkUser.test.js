@@ -7,10 +7,24 @@ import checkUserCommand from '../../commands/admin/checkUser.js'
 import { createMockInteraction } from '../helpers/mockInteraction.js'
 
 describe('/checkuser command', () => {
-    const TARGET_DISCORD_ID = 'target-discord-id-456'
+    const TARGET_DISCORD_ID = '123456789012345678'
 
     beforeEach(() => {
         vi.clearAllMocks()
+    })
+
+    test('replies with error when Discord ID format is invalid', async () => {
+        const interaction = createMockInteraction({
+            userId: 'admin-user-id',
+            isAdmin: true,
+            options: { discordid: 'not-a-valid-id' }
+        })
+        await checkUserCommand.execute(interaction)
+
+        expect(interaction.reply).toHaveBeenCalledWith(
+            expect.objectContaining({ content: 'That is not a valid Discord ID.' })
+        )
+        expect(MemberContext.create).not.toHaveBeenCalled()
     })
 
     test('replies with error when user lacks Administrator permission', async () => {
