@@ -5,12 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
-<<<<<<< HEAD
-    "test": "vitest run",
-    "test:watch": "vitest"
-=======
-    "test": "jest"
->>>>>>> c568a2c2dd4ba6f30cfc64380607bdc6ecb30f75
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "author": "Ruben Nienhuis",
   "license": "ISC",
@@ -19,13 +15,11 @@
     "discord.js": "^14.14.1",
     "dotenv": "^16.3.1"
   },
+  "jest": {
+    "testMatch": ["**/__tests__/**/*.test.js"]
+  },
   "devDependencies": {
-<<<<<<< HEAD
-    "nodemon": "^3.1.14",
-    "vitest": "^5.1.0"
-=======
     "jest": "^30.5.2",
     "nodemon": "^3.1.14"
->>>>>>> c568a2c2dd4ba6f30cfc64380607bdc6ecb30f75
   }
 }

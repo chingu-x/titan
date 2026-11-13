@@ -1,10 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createRequire } from 'node:module';
-import { createMockInteraction } from '../helpers/mockInteraction.mjs';
+// Prevent handlers/airtable.js from calling `new Airtable({apiKey})` at import time.
+jest.mock('airtable', () => jest.fn(() => ({ base: jest.fn() })))
 
-const require = createRequire(import.meta.url);
-const { MemberContext } = require('../../services/MemberContext.js');
+const { MemberContext } = require('../../services/MemberContext');
 const user = require('../../commands/utility/user');
+const { createMockInteraction } = require('../helpers/mockInteraction');
 
 const USER_ID = '123456789012345678';
 const ERROR_MESSAGE = 'An error occurred while trying to fetch your information.';
@@ -15,10 +14,14 @@ describe('/user command', () => {
 
     beforeEach(() => {
         fakeEmbed = { title: 'fake embed' };
-        createSpy = vi
+        createSpy = jest
             .spyOn(MemberContext, 'create')
             .mockResolvedValue({ embedMessage: fakeEmbed });
-        vi.spyOn(console, 'error').mockImplementation(() => {});
+        jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     describe('command definition', () => {
