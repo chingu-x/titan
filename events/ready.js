@@ -22,7 +22,7 @@ export default {
 
         await sendOnboardingMessage(client, applicationChannelId);
 
-        categoryIds = [process.env.CATEGORY_TIER_1_ID, process.env.CATEGORY_TIER_2_ID, process.env.CATEGORY_TIER_3_ID];
+        const categoryIds = [process.env.CATEGORY_TIER_1_ID, process.env.CATEGORY_TIER_2_ID, process.env.CATEGORY_TIER_3_ID];
         await createMenu(client, categoryIds, tempVoiceID);
 
         async function sendButtonMessage(client, channelId) {

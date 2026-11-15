@@ -180,12 +180,6 @@ class MemberContext {
                     },
                 ] : [])
             )
-            .addFields(
-                ...(this.voyageProjectVoyage ? [
-                    { name: `Submitted Project for ${this.voyageProjectVoyage.number}`, value: this.voyageProjectText, inline: true },
-                    { name: `Submitted Demo Day presentation for ${this.voyageProjectVoyage.number}:`, value: this.demoDayText, inline: true },
-                ] : [])
-            )
             .setThumbnail('https://imgur.com/EII19bn.png');
     }
 

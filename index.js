@@ -47,6 +47,11 @@ const eventFiles = readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 for (const file of eventFiles) {
 	const filePath = join(eventsPath, file);
 	const event = (await import(pathToFileURL(filePath).href)).default;
+	if (!event?.name || typeof event.execute !== 'function') {
+		console.log(`[INFO] Skipping ${file}: not an event module`);
+		continue;
+	}
+
 	if (event.once) {
 		client.once(event.name, (...args) => event.execute(...args));
 	} else {
