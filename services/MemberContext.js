@@ -169,7 +169,7 @@ class MemberContext {
                         inline: true
                     },
                     {
-                        name: `Submitted Demo Day presentation for ${this.currentVoyage}:`,
+                        name: `Submitted Demo Day presentation for ${this.demoDayVoyage.number}:`,
                         value: this.demoDayText,
                         inline: true
                     },
