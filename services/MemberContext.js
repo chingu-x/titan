@@ -106,7 +106,7 @@ class MemberContext {
                     value: this.soloProjectTier,
                     inline: true
                 },
-                { name: '​', value: '​' },
+                { name: '\u200B​', value: '\u200B​' },
             )
             .addFields(
                 {
@@ -119,7 +119,7 @@ class MemberContext {
                     value: this.getStatusMatchText('Discord Name'),
                     inline: true
                 },
-                { name: '​', value: '​' },
+                { name: '\u200B​', value: '\u200B​' },
             )
             .addFields(
                 {
@@ -129,7 +129,7 @@ class MemberContext {
                 },
                 { name: `Tier and Team`, value: this.currentVoyageSignupTierTeam, inline: true },
                 { name: `Role`, value: this.currentVoyageSignupRole, inline: true },
-                { name: '​', value: '​' },
+                { name: '\u200B​', value: '​\u200B' },
             )
             .addFields(
                 {
@@ -146,7 +146,7 @@ class MemberContext {
                         'N/A',
                     inline: true
                 },
-                { name: '​', value: '​' },
+                { name: '\u200B​', value: '​\u200B' },
             )
             .addFields(
                 {

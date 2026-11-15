@@ -32,10 +32,10 @@ for (const folder of commandFolders) {
 		const filePath = join(commandsPath, file);
 		const command = (await import(pathToFileURL(filePath).href)).default;
 
-		if ('data' in command && 'execute' in command) {
-			client.commands.set(command.data.name, command);
+		if (command && 'data' in command && 'execute' in command) {
+				client.commands.set(command.data.name, command);
 		} else {
-			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+				console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
 		}
 	}
 

@@ -10,7 +10,7 @@ async function getVoyages() {
         number: voyage.fields['Name'],
         startDate: new Date(voyage.fields['Start Date']),
         endDate: new Date(voyage.fields['End Date']),
-        sprint5StartDate: new Date(voyage.fields['Sprint 5 Start Date'])
+        sprint5StartDate: voyage.fields['Sprint 5 Start Date'] === '' ? null : new Date(voyage.fields['Sprint 5 Start Date'])
     })).filter(voyage =>
         voyage.number !== 'V999' &&
         voyage.number !== 'V99' &&
