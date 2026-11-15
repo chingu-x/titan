@@ -16,7 +16,7 @@ class MemberContext {
         this.user = null;
         this.applicationData = null;
 
-        this.curentVoyage = null;
+        this.currentVoyage = null;
         this.nextVoyage = null;
         this.currentVoyageSignupTierTeam = null;
         this.currentVoyageSignupRole = null;
@@ -25,11 +25,6 @@ class MemberContext {
         this.soloProjectTier = 'N/A';
         this.evaluationStatus = null;
         this.evaluationEmoji = ':x:';
-
-        this.voyageProjectVoyage = null;
-        this.voyageProjectText = `No :x:`
-        this.demoDayVoyage = null;
-        this.demoDayText = `No :x:`;
 
         this.currentVoyageSignupData = null;
         this.nextVoyageSignupData = null;
