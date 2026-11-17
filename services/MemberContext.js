@@ -295,8 +295,12 @@ class MemberContext {
         if (currentVoyage === null) {
             return priorVoyage;
         }
-        const currentDate = new Date();
-        if (currentDate >= currentVoyage.sprint5StartDate) {
+        // Without a Sprint 5 date we can't tell whether closure has started,
+        // so fall back to the prior voyage.
+        const sprint5HasStarted =
+            currentVoyage.sprint5StartDate !== null &&
+            new Date() >= currentVoyage.sprint5StartDate;
+        if (sprint5HasStarted) {
             return currentVoyage;
         }
         return priorVoyage ?? currentVoyage;

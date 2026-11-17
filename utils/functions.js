@@ -1,5 +1,15 @@
 import { base } from '../handlers/airtable.js';
 
+// Airtable omits empty fields, so a blank date arrives as undefined.
+// Return null for missing or unparseable values rather than an Invalid Date.
+function parseOptionalDate(value) {
+    if (!value) {
+        return null;
+    }
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
 async function getVoyages() {
     const voyages = await base('Schedules').select({
         view: 'Voyages',
@@ -10,8 +20,7 @@ async function getVoyages() {
         number: voyage.fields['Name'],
         startDate: new Date(voyage.fields['Start Date']),
         endDate: new Date(voyage.fields['End Date']),
-        sprint5StartDate: voyage.fields['Sprint 5 Start Date'] === '' ? null : new Date(voyage.fields['Sprint 5 Start Date'])
-    })).filter(voyage =>
+        sprint5StartDate: parseOptionalDate(voyage.fields['Sprint 5 Start Date'])    })).filter(voyage =>
         voyage.number !== 'V999' &&
         voyage.number !== 'V99' &&
         voyage.number[0] !== 'X'
