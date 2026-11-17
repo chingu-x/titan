@@ -3,7 +3,12 @@ vi.mock('../../handlers/airtable.js', () => ({
 }))
 
 import { base } from '../../handlers/airtable.js'
-import { getCurrentAndPriorVoyage, selectVoyageForClosureInfo } from '../../utils/functions.js'
+import {
+    getVoyages,
+    getCurrentAndNextVoyage,
+    getCurrentAndPriorVoyage,
+    selectVoyageForClosureInfo,
+} from '../../utils/functions.js'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -180,6 +185,75 @@ describe('getCurrentAndPriorVoyage', () => {
         const { currentVoyage } = await getCurrentAndPriorVoyage()
 
         expect(currentVoyage.sprint5StartDate).toBeNull()
+    })
+})
+
+// ── Reusing a fetched schedule ────────────────────────────────────────────────
+
+describe('voyage helpers given an already-fetched schedule', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        vi.useFakeTimers({ toFake: ['Date'] })
+        vi.setSystemTime(new Date('2026-06-15T12:00:00Z'))
+    })
+
+    afterEach(() => {
+        vi.useRealTimers()
+    })
+
+    test('getVoyages returns the schedule sorted by start date', async () => {
+        mockSchedules([V53, V50, V52, V51])
+
+        const voyages = await getVoyages()
+
+        expect(voyages.map(v => v.number)).toEqual(['V50', 'V51', 'V52', 'V53'])
+    })
+
+    test('getCurrentAndPriorVoyage uses the given schedule without calling Airtable', async () => {
+        mockSchedules(SCHEDULE)
+        const voyages = await getVoyages()
+        base.mockClear()
+
+        const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage(voyages)
+
+        expect(base).not.toHaveBeenCalled()
+        expect(currentVoyage.number).toBe('V52')
+        expect(priorVoyage.number).toBe('V51')
+    })
+
+    test('getCurrentAndNextVoyage uses the given schedule without calling Airtable', async () => {
+        mockSchedules(SCHEDULE)
+        const voyages = await getVoyages()
+        base.mockClear()
+
+        const { currentVoyage, nextVoyage } = await getCurrentAndNextVoyage(voyages)
+
+        expect(base).not.toHaveBeenCalled()
+        expect(currentVoyage).toBe('V52')
+        expect(nextVoyage).toBe('V53')
+    })
+
+    test('getCurrentAndPriorVoyage does not reorder the shared schedule', async () => {
+        mockSchedules(SCHEDULE)
+        const voyages = await getVoyages()
+        const originalOrder = voyages.map(v => v.number)
+
+        await getCurrentAndPriorVoyage(voyages)
+
+        expect(voyages.map(v => v.number)).toEqual(originalOrder)
+    })
+
+    test('both helpers give the same answers whichever runs first on a shared schedule', async () => {
+        mockSchedules(SCHEDULE)
+        const voyages = await getVoyages()
+
+        const prior = await getCurrentAndPriorVoyage(voyages)
+        const next = await getCurrentAndNextVoyage(voyages)
+
+        expect(prior.currentVoyage.number).toBe('V52')
+        expect(prior.priorVoyage.number).toBe('V51')
+        expect(next.currentVoyage).toBe('V52')
+        expect(next.nextVoyage).toBe('V53')
     })
 })
 

@@ -169,20 +169,22 @@ Several test names end with a numbered test case (for example "Test case 4"). Th
 | returns N/A when neither current nor next voyage signup exists | Confirm N/A is shown when there's nothing to compare |
 | works for Discord Name field / returns Mismatch when Discord Name differs | Confirm Discord Name matching works the same way as email (2 tests) |
 
-##### Voyage closure - `loadVoyageProjects` and `loadDemoDaySignups`
+##### Voyage closure - `loadClosureVoyage`, `loadVoyageProjects` and `loadDemoDaySignups`
 
 | Test | Objective |
 | --- | --- |
-| leaves closure voyages null and skips lookups when there is no current or prior voyage | Confirm nothing is looked up when there's no voyage to report on |
-| passes the current and prior voyages to selectVoyageForClosureInfo | Confirm both loaders hand the schedule to the selection logic |
-| stores the selected voyage for both project and Demo Day info | Confirm both loaders use the voyage that was selected |
+| fetches the voyage schedule from Airtable only once per lookup | Confirm `MemberContext.create` reads the Schedules table a single time |
+| shares the fetched schedule with the voyage signup and closure helpers | Confirm the same schedule is passed to both voyage helpers, and the closure voyage is worked out once |
+| leaves closureVoyage null and skips lookups when there is no current or prior voyage | Confirm nothing is looked up when there's no voyage to report on |
+| passes the current and prior voyages to selectVoyageForClosureInfo | Confirm the schedule is handed to the selection logic |
+| stores the selected voyage as closureVoyage | Confirm the selected voyage is kept for the project and Demo Day lookups |
 | looks up voyage projects for the selected voyage and member | Confirm the Voyage Projects lookup gets the right voyage, Discord ID and fields |
 | looks up Demo Day signups for the selected voyage and member | Confirm the Demo Day Signup lookup gets the right voyage, Discord ID and fields |
 | voyageProjectText is Yes when a voyage project record exists | Confirm a submitted project shows Yes, independently of Demo Day |
 | demoDayText is Yes when a Demo Day signup record exists | Confirm a Demo Day signup shows Yes, independently of the project |
 | both texts stay No when no records are returned | Confirm members with no submissions see No |
 | both texts stay No when the lookups fail and return undefined | Documents current behavior: an Airtable error is shown to the member as No |
-| skips closure lookups when the Discord user cannot be found | Confirm no Airtable calls are made for an unknown Discord ID |
+| skips closure lookups when the Discord user cannot be found | Confirm the schedule isn't fetched and no closure lookups are made for an unknown Discord ID |
 
 ##### Voyage closure - embed fields
 
@@ -214,6 +216,16 @@ Several test names end with a numbered test case (for example "Test case 4"). Th
 | sets sprint5StartDate to null when the field is blank in Airtable | Confirm a missing Sprint 5 date (Airtable omits blank fields) becomes `null` |
 | sets sprint5StartDate to null when the field is an empty string | Confirm an empty Sprint 5 date becomes `null` |
 | sets sprint5StartDate to null when the field is not a valid date | Confirm an unparseable Sprint 5 date becomes `null`, not an Invalid Date |
+
+##### Voyage helpers given an already-fetched schedule
+
+| Test | Objective |
+| --- | --- |
+| getVoyages returns the schedule sorted by start date | Confirm the shared schedule is in date order |
+| getCurrentAndPriorVoyage uses the given schedule without calling Airtable | Confirm a schedule passed in is reused rather than fetched again |
+| getCurrentAndNextVoyage uses the given schedule without calling Airtable | Confirm a schedule passed in is reused rather than fetched again |
+| getCurrentAndPriorVoyage does not reorder the shared schedule | Confirm the helper doesn't change the array it was given |
+| both helpers give the same answers whichever runs first on a shared schedule | Confirm sharing one schedule between the helpers is safe |
 
 ##### `selectVoyageForClosureInfo`
 

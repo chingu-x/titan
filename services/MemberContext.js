@@ -1,4 +1,5 @@
-import { 
+import {
+    getVoyages,
     getCurrentAndNextVoyage,
     getCurrentAndPriorVoyage,
     selectVoyageForClosureInfo } from '../utils/functions.js';
@@ -35,9 +36,9 @@ class MemberContext {
 
         this.commitmentFormText = 'N/A';
 
-        this.voyageProjectVoyage = null;
+        // The voyage whose project and Demo Day status is reported (see loadClosureVoyage)
+        this.closureVoyage = null;
         this.voyageProjectText = `No :x:`;
-        this.demoDayVoyage = null;
         this.demoDayText = `No :x:`;
     }
 
@@ -49,9 +50,13 @@ class MemberContext {
         if(instance.user === null) {
             return instance;
         }
+        // Fetch the voyage schedule once and share it with every loader that needs it
+        const voyages = await getVoyages();
+
         await instance.loadSoloProjects()
         await instance.loadApplications()
-        await instance.loadVoyageSignups()
+        await instance.loadVoyageSignups(voyages)
+        await instance.loadClosureVoyage(voyages)
         await instance.loadVoyageProjects()
         await instance.loadDemoDaySignups()
 
@@ -165,14 +170,14 @@ class MemberContext {
                 { name: '\u200B', value: '\u200B' },
             )
             .addFields(
-                ...(this.voyageProjectVoyage ? [
+                ...(this.closureVoyage ? [
                     {
-                        name: `Submitted Project for ${this.voyageProjectVoyage.number}`,
+                        name: `Submitted Project for ${this.closureVoyage.number}`,
                         value: this.voyageProjectText,
                         inline: true
                     },
                     {
-                        name: `Submitted Demo Day presentation for ${this.demoDayVoyage.number}:`,
+                        name: `Submitted Demo Day presentation for ${this.closureVoyage.number}:`,
                         value: this.demoDayText,
                         inline: true
                     },
@@ -235,9 +240,9 @@ class MemberContext {
         this.soloProjectTier = `Tier ${this.soloProjectData['Tier'][5]}`
     }
 
-    async loadVoyageSignups() {
+    async loadVoyageSignups(voyages) {
         // fetch the current and next voyage
-        const { currentVoyage, nextVoyage } = await getCurrentAndNextVoyage();
+        const { currentVoyage, nextVoyage } = await getCurrentAndNextVoyage(voyages);
         this.currentVoyage = currentVoyage;
         this.nextVoyage = nextVoyage;
 
@@ -294,14 +299,20 @@ class MemberContext {
             `${this.currentVoyageSignupData['Role']}` : 'N/A';
     }
 
-    async loadVoyageProjects() {
-        const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
+    async loadClosureVoyage(voyages) {
+        const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage(voyages);
         if (currentVoyage === null && priorVoyage === null) {
             return;
         }
-        this.voyageProjectVoyage = selectVoyageForClosureInfo(currentVoyage, priorVoyage);
+        this.closureVoyage = selectVoyageForClosureInfo(currentVoyage, priorVoyage);
+    }
+
+    async loadVoyageProjects() {
+        if (this.closureVoyage === null) {
+            return;
+        }
         const voyageProjects = await getVoyageProjectsByDiscordId(
-            this.voyageProjectVoyage.number,
+            this.closureVoyage.number,
             this.discordId,
             ['Discord ID (from Application link)', 'What is your Voyage?']
         );
@@ -312,13 +323,11 @@ class MemberContext {
     }
 
     async loadDemoDaySignups() {
-        const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
-        if (currentVoyage === null && priorVoyage === null) {
+        if (this.closureVoyage === null) {
             return;
         }
-        this.demoDayVoyage = selectVoyageForClosureInfo(currentVoyage, priorVoyage);
         const demoDaySubmissions = await getDemoDaySignupsByDiscordId(
-            this.demoDayVoyage.number,
+            this.closureVoyage.number,
             this.discordId,
             ['Discord ID (from Application link)', 'Voyage']
         );

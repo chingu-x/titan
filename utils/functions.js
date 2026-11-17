@@ -27,8 +27,10 @@ async function getVoyages() {
     ).sort((a, b) => a.startDate - b.startDate);
 }
 
-async function getCurrentAndNextVoyage() {
-    const voyages = await getVoyages();
+// Pass `voyages` (from getVoyages) to reuse a schedule already fetched;
+// otherwise the schedule is fetched from Airtable.
+async function getCurrentAndNextVoyage(voyages) {
+    voyages ??= await getVoyages();
     const currentDate = new Date();
 
     let currentVoyage = null;
@@ -48,10 +50,13 @@ async function getCurrentAndNextVoyage() {
     return { currentVoyage, nextVoyage };
 }
 
-async function getCurrentAndPriorVoyage() {
-    // Returns voyage objects (not just names) for use in closure-related methods.
-    const voyages = await getVoyages();
-    const sortedVoyages = voyages.reverse();
+// Returns voyage objects (not just names) for use in closure-related methods.
+// Pass `voyages` (from getVoyages) to reuse a schedule already fetched;
+// otherwise the schedule is fetched from Airtable.
+async function getCurrentAndPriorVoyage(voyages) {
+    voyages ??= await getVoyages();
+    // toReversed() leaves the caller's array untouched so it can be shared.
+    const sortedVoyages = voyages.toReversed();
     const currentDate = new Date();
 
     let currentVoyage = null;
@@ -86,8 +91,9 @@ function selectVoyageForClosureInfo(currentVoyage, priorVoyage) {
     return priorVoyage ?? currentVoyage;
 }
 
-export { 
-    getCurrentAndNextVoyage, 
+export {
+    getVoyages,
+    getCurrentAndNextVoyage,
     getCurrentAndPriorVoyage,
     selectVoyageForClosureInfo,
 };

@@ -6,6 +6,7 @@ vi.mock('../services/voyageProjects.js')
 vi.mock('../services/demoDaySignups.js')
 
 import {
+    getVoyages,
     getCurrentAndNextVoyage,
     getCurrentAndPriorVoyage,
     selectVoyageForClosureInfo,
@@ -59,12 +60,9 @@ function buildContext(overrides = {}) {
     // These default to 'N/A' (not null) because EmbedBuilder rejects null field values
     ctx.currentVoyageSignupTierTeam = overrides.currentVoyageSignupTierTeam ?? 'N/A'
     ctx.currentVoyageSignupRole = overrides.currentVoyageSignupRole ?? 'N/A'
-    // voyageProjectVoyage defaults to a voyage object so embedMessage doesn't crash on null
-    ctx.voyageProjectVoyage = overrides.voyageProjectVoyage !== undefined
-        ? overrides.voyageProjectVoyage
-        : { number: CURRENT_VOYAGE }
-    ctx.demoDayVoyage = overrides.demoDayVoyage !== undefined
-        ? overrides.demoDayVoyage
+    // closureVoyage defaults to a voyage object so the closure fields are rendered
+    ctx.closureVoyage = overrides.closureVoyage !== undefined
+        ? overrides.closureVoyage
         : { number: CURRENT_VOYAGE }
     return ctx
 }
@@ -591,9 +589,12 @@ describe('MemberContext.getStatusMatchText', () => {
 const PRIOR_VOYAGE_OBJ = { number: 'V51', sprint5StartDate: new Date('2026-03-30') }
 const CURRENT_VOYAGE_OBJ = { number: CURRENT_VOYAGE, sprint5StartDate: new Date('2026-06-22') }
 
-describe('MemberContext closure loaders (loadVoyageProjects, loadDemoDaySignups)', () => {
+const VOYAGE_SCHEDULE = [PRIOR_VOYAGE_OBJ, CURRENT_VOYAGE_OBJ]
+
+describe('MemberContext closure loaders (loadClosureVoyage, loadVoyageProjects, loadDemoDaySignups)', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        getVoyages.mockResolvedValue(VOYAGE_SCHEDULE)
         getCurrentAndNextVoyage.mockResolvedValue({ currentVoyage: CURRENT_VOYAGE, nextVoyage: NEXT_VOYAGE })
         getAllVoyageSignupsByDiscordId.mockResolvedValue([])
         getApplicationsByDiscordId.mockResolvedValue([])
@@ -604,13 +605,27 @@ describe('MemberContext closure loaders (loadVoyageProjects, loadDemoDaySignups)
         getDemoDaySignupsByDiscordId.mockResolvedValue([])
     })
 
-    test('leaves closure voyages null and skips lookups when there is no current or prior voyage', async () => {
+    test('fetches the voyage schedule from Airtable only once per lookup', async () => {
+        await MemberContext.create(makeInteraction(), DISCORD_ID)
+
+        expect(getVoyages).toHaveBeenCalledTimes(1)
+    })
+
+    test('shares the fetched schedule with the voyage signup and closure helpers', async () => {
+        await MemberContext.create(makeInteraction(), DISCORD_ID)
+
+        expect(getCurrentAndNextVoyage).toHaveBeenCalledWith(VOYAGE_SCHEDULE)
+        expect(getCurrentAndPriorVoyage).toHaveBeenCalledWith(VOYAGE_SCHEDULE)
+        expect(getCurrentAndPriorVoyage).toHaveBeenCalledTimes(1)
+        expect(selectVoyageForClosureInfo).toHaveBeenCalledTimes(1)
+    })
+
+    test('leaves closureVoyage null and skips lookups when there is no current or prior voyage', async () => {
         getCurrentAndPriorVoyage.mockResolvedValue({ currentVoyage: null, priorVoyage: null })
 
         const ctx = await MemberContext.create(makeInteraction(), DISCORD_ID)
 
-        expect(ctx.voyageProjectVoyage).toBeNull()
-        expect(ctx.demoDayVoyage).toBeNull()
+        expect(ctx.closureVoyage).toBeNull()
         expect(selectVoyageForClosureInfo).not.toHaveBeenCalled()
         expect(getVoyageProjectsByDiscordId).not.toHaveBeenCalled()
         expect(getDemoDaySignupsByDiscordId).not.toHaveBeenCalled()
@@ -624,11 +639,10 @@ describe('MemberContext closure loaders (loadVoyageProjects, loadDemoDaySignups)
         expect(selectVoyageForClosureInfo).toHaveBeenCalledWith(CURRENT_VOYAGE_OBJ, PRIOR_VOYAGE_OBJ)
     })
 
-    test('stores the selected voyage for both project and Demo Day info', async () => {
+    test('stores the selected voyage as closureVoyage', async () => {
         const ctx = await MemberContext.create(makeInteraction(), DISCORD_ID)
 
-        expect(ctx.voyageProjectVoyage).toBe(PRIOR_VOYAGE_OBJ)
-        expect(ctx.demoDayVoyage).toBe(PRIOR_VOYAGE_OBJ)
+        expect(ctx.closureVoyage).toBe(PRIOR_VOYAGE_OBJ)
     })
 
     test('looks up voyage projects for the selected voyage and member', async () => {
@@ -699,6 +713,7 @@ describe('MemberContext closure loaders (loadVoyageProjects, loadDemoDaySignups)
         const ctx = await MemberContext.create(interaction, DISCORD_ID)
 
         expect(ctx.user).toBeNull()
+        expect(getVoyages).not.toHaveBeenCalled()
         expect(getCurrentAndPriorVoyage).not.toHaveBeenCalled()
         expect(getVoyageProjectsByDiscordId).not.toHaveBeenCalled()
         expect(getDemoDaySignupsByDiscordId).not.toHaveBeenCalled()
@@ -732,8 +747,7 @@ describe('MemberContext.embedMessage — voyage closure fields', () => {
     test('labels the fields with the closure voyage, not the current voyage', () => {
         const ctx = buildContext({
             applicationData: BASE_APPLICATION,
-            voyageProjectVoyage: { number: 'V51' },
-            demoDayVoyage: { number: 'V51' },
+            closureVoyage: { number: 'V51' },
         })
         const fields = fieldMap(ctx.embedMessage)
 
@@ -754,8 +768,7 @@ describe('MemberContext.embedMessage — voyage closure fields', () => {
     test('omits closure fields when there is no closure voyage', () => {
         const ctx = buildContext({
             applicationData: BASE_APPLICATION,
-            voyageProjectVoyage: null,
-            demoDayVoyage: null,
+            closureVoyage: null,
         })
         const names = ctx.embedMessage.data.fields.map(f => f.name)
 
