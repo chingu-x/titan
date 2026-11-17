@@ -91,44 +91,142 @@ Temporary private voice channels are created by the user inside a dedicated text
 
 ### Testing
 
-Tests use [Jest](https://jestjs.io/) and live in the `__tests__/` directory. Discord and Airtable are never contacted: each test passes a fake Discord interaction (`__tests__/helpers/mockInteraction.js`) and replaces `MemberContext.create` with a spy, so only the command's own logic is tested. The `airtable` package is mocked at the module level to prevent it from attempting a live connection when test files are loaded.
+Tests use [Vitest](https://vitest.dev/) and live in the `__tests__/` directory, which mirrors the source layout. Settings are in `vitest.config.mjs`: Vitest's globals (`describe`, `test`, `expect`, `vi`) are enabled, so test files don't import them, and fake `AIRTABLE_API_KEY` / `AIRTABLE_BASE` values are provided so no `.env` file is needed.
 
-* `npm test` - run the suite once
-* `npm run test:watch` - re-run tests as files change
+Discord and Airtable are never contacted. Each test file mocks the layer below the code it tests:
+
+* **Commands** (`__tests__/commands/`) pass a fake Discord interaction (`__tests__/helpers/mockInteraction.js`) and replace `MemberContext.create` with a mock, so only the command's own logic is tested.
+* **`MemberContext`** (`__tests__/MemberContext.test.js`) auto-mocks `utils/functions.js` and every module in `services/`, then either builds a context with known state or runs `MemberContext.create` against mocked service results.
+* **Voyage utilities** (`__tests__/utils/functions.test.js`) mock `handlers/airtable.js` so `base('Schedules')` returns fake schedule records, and use Vitest fake timers to pin the current date.
+
+| Command | What it does |
+| --- | --- |
+| `npm test` | Run the whole suite once |
+| `npx vitest` | Re-run tests as files change |
+| `npx vitest run __tests__/utils/functions.test.js` | Run a single test file |
 
 #### `/checkuser` - `__tests__/commands/checkUser.test.js`
 
 | Test | Objective |
 | --- | --- |
-| is named "checkuser" with a description | Confirm the command is registered under the expected name and description |
-| defaults to Administrator-only permissions | Confirm Discord hides the command from non-admins by default |
-| has a single required "discordid" string option | Confirm the command requires exactly one Discord ID string argument |
-| exports an execute function | Confirm the command module has the shape the command loader expects |
-| rejects non-administrators without looking up the user | Confirm non-admins get a permission error and no user data is fetched |
-| rejects an ID that is non-numeric / too short (16 digits) / too long (21 digits) / contains letters / a mention / empty | Confirm invalid Discord IDs get a "not a valid Discord ID" reply and no lookup happens (6 cases) |
-| accepts an ID with 17 / 18 / 20 digits | Confirm valid Discord ID lengths pass validation and are looked up (3 cases) |
-| trims surrounding whitespace before validating | Confirm leading and trailing spaces in the ID are ignored |
-| replies ephemerally with the member context embed | Confirm a successful lookup replies once with the user info embed, visible only to the admin |
-| looks up the requested ID, not the invoking admin | Confirm the lookup uses the ID typed in, not the ID of the admin running the command |
-| replies with an error message when the lookup fails | Confirm a failed lookup is logged and the admin gets a generic error reply |
-| edits the reply instead when the interaction was already replied to | Confirm the error is sent by editing the existing reply when one has already been sent |
-| edits the reply instead when the interaction was deferred | Confirm the error is sent by editing the reply when the interaction was deferred |
-| uses the error path when building the embed throws | Confirm an error while building the embed still gives a generic error reply |
+| replies with error when Discord ID format is invalid | Confirm an invalid Discord ID gets a "not a valid Discord ID" reply and no lookup happens |
+| replies with error when user lacks Administrator permission | Confirm non-admins get a permission error and no user data is fetched |
+| calls MemberContext.create with the target discordId when user is admin | Confirm the lookup uses the ID typed in, not the ID of the admin running the command |
+| replies with the embed when user is admin | Confirm a successful lookup replies with the user info embed |
+| replies with error message when MemberContext.create throws and not deferred | Confirm a failed lookup gives the admin a generic error reply |
+| uses editReply when interaction is deferred on error | Confirm the error is sent by editing the reply when the interaction was deferred |
 
 #### `/user` - `__tests__/commands/user.test.js`
 
 | Test | Objective |
 | --- | --- |
-| is named "user" with a description | Confirm the command is registered under the expected name and description |
-| takes no options and has no permission restriction | Confirm any member can run the command with no arguments |
-| exports an execute function | Confirm the command module has the shape the command loader expects |
-| looks up the invoking user's own Discord ID | Confirm users can only see their own information |
-| replies ephemerally with the member context embed | Confirm a successful lookup replies once with the user info embed, visible only to that user |
-| does not require administrator permission | Confirm no admin permission check is made |
-| replies with an error message when the lookup fails | Confirm a failed lookup is logged and the user gets a generic error reply |
-| edits the reply instead when the interaction was already replied to | Confirm the error is sent by editing the existing reply when one has already been sent |
-| edits the reply instead when the interaction was deferred | Confirm the error is sent by editing the reply when the interaction was deferred |
-| uses the error path when building the embed throws | Confirm an error while building the embed still gives a generic error reply |
+| calls MemberContext.create with the interaction and user id | Confirm users can only look up their own information |
+| replies with the embed from MemberContext | Confirm a successful lookup replies with the user info embed |
+| replies with error message when MemberContext.create throws and not deferred | Confirm a failed lookup gives the user a generic error reply |
+| uses editReply when interaction is deferred on error | Confirm the error is sent by editing the reply when the interaction was deferred |
+
+#### `MemberContext` - `__tests__/MemberContext.test.js`
+
+Several test names end with a numbered test case (for example "Test case 4"). These are numbered member scenarios, from "no application" (Test case 1) through "team assigned" (Test case 16).
+
+##### Embed contents
+
+| Test | Objective |
+| --- | --- |
+| returns red embed when user is null | Confirm an unknown Discord ID gets the "no user found" embed |
+| returns red embed with no-applications message when applicationData is null | Confirm a member with no application is pointed to the application form |
+| embed has no fields when applicationData is null | Confirm no voyage details are shown without an application |
+| shows GitHub ID / Evaluation Status / Solo Project Tier as N/A when there is no data | Confirm missing solo project and evaluation data shows N/A (3 tests) |
+| shows "Not participating" for current voyage when no signup | Confirm a member not in the current voyage is shown as not participating |
+| shows Commitment Form as N/A when no next voyage signup | Confirm the commitment form status is N/A without a next voyage signup |
+| shows Voyage Email Match as N/A when no signups | Confirm email matching is N/A when there are no voyage signups |
+| shows :x: emoji for Waiting Evaluation / Requested Changes status | Confirm unfinished evaluations show :x: (2 tests) |
+| shows check emoji for Passed status | Confirm a passed evaluation shows the check emoji |
+| shows check emoji / :x: link for the commitment form (Test cases 4–7) | Confirm the commitment form status and signup link display correctly (3 tests) |
+| shows the Primary and Alternate Time Blocks (Test cases 11–14) | Confirm each combination of time blocks shows a value or N/A (7 tests) |
+| shows "No Team" / the team number (Test cases 15–16) | Confirm the team is displayed before and after assignment (2 tests) |
+
+##### Loading member data
+
+| Test | Objective |
+| --- | --- |
+| applicationData is null / set from the first application record | Confirm the first application is used, or none when there isn't one (2 tests) |
+| evaluationEmoji for Waiting Evaluation / Requested Changes / Passed status (Test case 3) | Confirm each evaluation status gets the right emoji (3 tests) |
+| resolves to Passed when Passed is in an array of statuses | Confirm Passed wins when the application has several statuses |
+| uses last array element when Passed is not present | Confirm the latest status is used when none of them is Passed |
+| soloProjectData is null / set from the first solo project record | Confirm the first solo project is used, or none when there isn't one (2 tests) |
+| soloProjectTier is derived from the Tier field | Confirm the solo project tier is read from the Tier field |
+| currentVoyageSignupData / nextVoyageSignupData from voyage signups | Confirm signups are matched to the current and next voyages (3 tests) |
+| currentVoyageSignupTierTeam (Test cases 15–16) | Confirm the tier and team text before and after team assignment, and N/A without a signup (3 tests) |
+| commitmentFormText (Test cases 4, 5 & 7) | Confirm the commitment form text when the form is and isn't completed (2 tests) |
+
+##### Status matching - `getStatusMatchText`
+
+| Test | Objective |
+| --- | --- |
+| returns Match when the current / next voyage signup email matches | Confirm a matching email in either signup shows Match (2 tests) |
+| returns Mismatch (Current Voyage) / Mismatch (Next Voyage) when the email differs | Confirm a mismatch says which voyage's signup differs (2 tests) |
+| returns N/A when neither current nor next voyage signup exists | Confirm N/A is shown when there's nothing to compare |
+| works for Discord Name field / returns Mismatch when Discord Name differs | Confirm Discord Name matching works the same way as email (2 tests) |
+
+##### Voyage closure - `loadVoyageProjects` and `loadDemoDaySignups`
+
+| Test | Objective |
+| --- | --- |
+| leaves closure voyages null and skips lookups when there is no current or prior voyage | Confirm nothing is looked up when there's no voyage to report on |
+| passes the current and prior voyages to selectVoyageForClosureInfo | Confirm both loaders hand the schedule to the selection logic |
+| stores the selected voyage for both project and Demo Day info | Confirm both loaders use the voyage that was selected |
+| looks up voyage projects for the selected voyage and member | Confirm the Voyage Projects lookup gets the right voyage, Discord ID and fields |
+| looks up Demo Day signups for the selected voyage and member | Confirm the Demo Day Signup lookup gets the right voyage, Discord ID and fields |
+| voyageProjectText is Yes when a voyage project record exists | Confirm a submitted project shows Yes, independently of Demo Day |
+| demoDayText is Yes when a Demo Day signup record exists | Confirm a Demo Day signup shows Yes, independently of the project |
+| both texts stay No when no records are returned | Confirm members with no submissions see No |
+| both texts stay No when the lookups fail and return undefined | Documents current behavior: an Airtable error is shown to the member as No |
+| skips closure lookups when the Discord user cannot be found | Confirm no Airtable calls are made for an unknown Discord ID |
+
+##### Voyage closure - embed fields
+
+| Test | Objective |
+| --- | --- |
+| shows project and Demo Day fields as No by default | Confirm both closure fields appear with No when nothing was submitted |
+| shows Yes for both fields when the member submitted both | Confirm both closure fields show Yes after submission |
+| labels the fields with the closure voyage, not the current voyage | Confirm the field names use the voyage being closed out |
+| renders both closure fields inline | Confirm the two closure fields display side by side |
+| omits closure fields when there is no closure voyage | Confirm the fields are left out rather than shown empty |
+| stays within Discord's 25-field embed limit | Confirm the full embed won't be rejected by Discord |
+
+#### Voyage utilities - `__tests__/utils/functions.test.js`
+
+##### `getCurrentAndPriorVoyage`
+
+| Test | Objective |
+| --- | --- |
+| requests the Sprint 5 Start Date field from the Schedules table | Confirm the Sprint 5 date is fetched from Airtable |
+| during a voyage, returns it as current and the one before it as prior | Confirm the normal mid-voyage case |
+| returns voyage objects with parsed dates, not just names | Confirm start, end and Sprint 5 dates are returned as `Date` objects |
+| between voyages, current is null and prior is the most recently started voyage | Confirm the gap between voyages reports the voyage that just ended |
+| during the first voyage, prior is null | Confirm there's no prior voyage before the first one |
+| before any voyage has started, both are null | Confirm nothing is returned before the schedule begins |
+| with no voyages at all, both are null | Confirm an empty schedule is handled |
+| when voyages overlap, the most recently started one is current | Confirm overlapping voyages pick the newer one as current |
+| handles schedule records returned out of date order | Confirm the result doesn't depend on the order Airtable returns records |
+| ignores V99, V999 and X-prefixed test voyages | Confirm test voyages are filtered out |
+| sets sprint5StartDate to null when the field is blank in Airtable | Confirm a missing Sprint 5 date (Airtable omits blank fields) becomes `null` |
+| sets sprint5StartDate to null when the field is an empty string | Confirm an empty Sprint 5 date becomes `null` |
+| sets sprint5StartDate to null when the field is not a valid date | Confirm an unparseable Sprint 5 date becomes `null`, not an Invalid Date |
+
+##### `selectVoyageForClosureInfo`
+
+| Test | Objective |
+| --- | --- |
+| returns the prior voyage when there is no current voyage | Confirm the voyage that just ended is used between voyages |
+| returns null when there is neither a current nor a prior voyage | Confirm there's nothing to report before the first voyage |
+| returns the current voyage once its Sprint 5 has started | Confirm closure info switches to the current voyage in Sprint 5 |
+| returns the current voyage on the exact moment Sprint 5 starts | Confirm the switch happens at the start of Sprint 5, not after |
+| returns the prior voyage before the current voyage reaches Sprint 5 | Confirm the prior voyage is reported until Sprint 5 begins |
+| falls back to the current voyage before Sprint 5 when there is no prior voyage | Confirm the first voyage is still reported when there's no prior voyage |
+| returns the prior voyage when the current voyage has no Sprint 5 date | Confirm a missing Sprint 5 date is treated as "not started yet" |
+| falls back to the current voyage when it has no Sprint 5 date and there is no prior voyage | Confirm a missing Sprint 5 date with no prior voyage still returns a voyage |
 
 ### Dependencies
 
@@ -138,8 +236,8 @@ Tests use [Jest](https://jestjs.io/) and live in the `__tests__/` directory. Dis
 
 #### Dev Dependencies
 
-* jest - ^30.5.2
 * nodemon - ^3.1.14
+* vitest - ^5.1.0
 
 ### Development
 

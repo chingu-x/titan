@@ -5,7 +5,11 @@ vi.mock('../services/soloProjects.js')
 vi.mock('../services/voyageProjects.js')
 vi.mock('../services/demoDaySignups.js')
 
-import { getCurrentAndNextVoyage, getCurrentAndPriorVoyage } from '../utils/functions.js'
+import {
+    getCurrentAndNextVoyage,
+    getCurrentAndPriorVoyage,
+    selectVoyageForClosureInfo,
+} from '../utils/functions.js'
 import { getAllVoyageSignupsByDiscordId } from '../services/voyages.js'
 import { getApplicationsByDiscordId } from '../services/applications.js'
 import { getSoloProjectsByDiscordId } from '../services/soloProjects.js'
@@ -579,5 +583,188 @@ describe('MemberContext.getStatusMatchText', () => {
             currentVoyageSignupData: { 'Discord Name': 'differentuser' }
         })
         expect(ctx.getStatusMatchText('Discord Name')).toBe('Mismatch :x: (Current Voyage)')
+    })
+})
+
+// ── loadVoyageProjects / loadDemoDaySignups ───────────────────────────────────
+
+const PRIOR_VOYAGE_OBJ = { number: 'V51', sprint5StartDate: new Date('2026-03-30') }
+const CURRENT_VOYAGE_OBJ = { number: CURRENT_VOYAGE, sprint5StartDate: new Date('2026-06-22') }
+
+describe('MemberContext closure loaders (loadVoyageProjects, loadDemoDaySignups)', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        getCurrentAndNextVoyage.mockResolvedValue({ currentVoyage: CURRENT_VOYAGE, nextVoyage: NEXT_VOYAGE })
+        getAllVoyageSignupsByDiscordId.mockResolvedValue([])
+        getApplicationsByDiscordId.mockResolvedValue([])
+        getSoloProjectsByDiscordId.mockResolvedValue([])
+        getCurrentAndPriorVoyage.mockResolvedValue({ currentVoyage: CURRENT_VOYAGE_OBJ, priorVoyage: PRIOR_VOYAGE_OBJ })
+        selectVoyageForClosureInfo.mockReturnValue(PRIOR_VOYAGE_OBJ)
+        getVoyageProjectsByDiscordId.mockResolvedValue([])
+        getDemoDaySignupsByDiscordId.mockResolvedValue([])
+    })
+
+    test('leaves closure voyages null and skips lookups when there is no current or prior voyage', async () => {
+        getCurrentAndPriorVoyage.mockResolvedValue({ currentVoyage: null, priorVoyage: null })
+
+        const ctx = await MemberContext.create(makeInteraction(), DISCORD_ID)
+
+        expect(ctx.voyageProjectVoyage).toBeNull()
+        expect(ctx.demoDayVoyage).toBeNull()
+        expect(selectVoyageForClosureInfo).not.toHaveBeenCalled()
+        expect(getVoyageProjectsByDiscordId).not.toHaveBeenCalled()
+        expect(getDemoDaySignupsByDiscordId).not.toHaveBeenCalled()
+        expect(ctx.voyageProjectText).toBe('No :x:')
+        expect(ctx.demoDayText).toBe('No :x:')
+    })
+
+    test('passes the current and prior voyages to selectVoyageForClosureInfo', async () => {
+        await MemberContext.create(makeInteraction(), DISCORD_ID)
+
+        expect(selectVoyageForClosureInfo).toHaveBeenCalledWith(CURRENT_VOYAGE_OBJ, PRIOR_VOYAGE_OBJ)
+    })
+
+    test('stores the selected voyage for both project and Demo Day info', async () => {
+        const ctx = await MemberContext.create(makeInteraction(), DISCORD_ID)
+
+        expect(ctx.voyageProjectVoyage).toBe(PRIOR_VOYAGE_OBJ)
+        expect(ctx.demoDayVoyage).toBe(PRIOR_VOYAGE_OBJ)
+    })
+
+    test('looks up voyage projects for the selected voyage and member', async () => {
+        selectVoyageForClosureInfo.mockReturnValue(CURRENT_VOYAGE_OBJ)
+
+        await MemberContext.create(makeInteraction(), DISCORD_ID)
+
+        expect(getVoyageProjectsByDiscordId).toHaveBeenCalledWith(
+            CURRENT_VOYAGE,
+            DISCORD_ID,
+            ['Discord ID (from Application link)', 'What is your Voyage?']
+        )
+    })
+
+    test('looks up Demo Day signups for the selected voyage and member', async () => {
+        selectVoyageForClosureInfo.mockReturnValue(CURRENT_VOYAGE_OBJ)
+
+        await MemberContext.create(makeInteraction(), DISCORD_ID)
+
+        expect(getDemoDaySignupsByDiscordId).toHaveBeenCalledWith(
+            CURRENT_VOYAGE,
+            DISCORD_ID,
+            ['Discord ID (from Application link)', 'Voyage']
+        )
+    })
+
+    test('voyageProjectText is Yes when a voyage project record exists', async () => {
+        getVoyageProjectsByDiscordId.mockResolvedValue([makeRecord({ 'What is your Voyage?': 'V51' })])
+
+        const ctx = await MemberContext.create(makeInteraction(), DISCORD_ID)
+
+        expect(ctx.voyageProjectText).toBe(`Yes ${CHECK_EMOJI}`)
+        expect(ctx.demoDayText).toBe('No :x:')
+    })
+
+    test('demoDayText is Yes when a Demo Day signup record exists', async () => {
+        getDemoDaySignupsByDiscordId.mockResolvedValue([makeRecord({ Voyage: 'V51' })])
+
+        const ctx = await MemberContext.create(makeInteraction(), DISCORD_ID)
+
+        expect(ctx.demoDayText).toBe(`Yes ${CHECK_EMOJI}`)
+        expect(ctx.voyageProjectText).toBe('No :x:')
+    })
+
+    test('both texts stay No when no records are returned', async () => {
+        const ctx = await MemberContext.create(makeInteraction(), DISCORD_ID)
+
+        expect(ctx.voyageProjectText).toBe('No :x:')
+        expect(ctx.demoDayText).toBe('No :x:')
+    })
+
+    // Documents current behavior: the services swallow Airtable errors and
+    // return undefined, which is shown to the member as "No" (review issue #3).
+    test('both texts stay No when the lookups fail and return undefined', async () => {
+        getVoyageProjectsByDiscordId.mockResolvedValue(undefined)
+        getDemoDaySignupsByDiscordId.mockResolvedValue(undefined)
+
+        const ctx = await MemberContext.create(makeInteraction(), DISCORD_ID)
+
+        expect(ctx.voyageProjectText).toBe('No :x:')
+        expect(ctx.demoDayText).toBe('No :x:')
+    })
+
+    test('skips closure lookups when the Discord user cannot be found', async () => {
+        const interaction = makeInteraction()
+        interaction.client.users.fetch.mockRejectedValue(new Error('Unknown User'))
+
+        const ctx = await MemberContext.create(interaction, DISCORD_ID)
+
+        expect(ctx.user).toBeNull()
+        expect(getCurrentAndPriorVoyage).not.toHaveBeenCalled()
+        expect(getVoyageProjectsByDiscordId).not.toHaveBeenCalled()
+        expect(getDemoDaySignupsByDiscordId).not.toHaveBeenCalled()
+    })
+})
+
+// ── embedMessage — voyage closure fields ──────────────────────────────────────
+
+describe('MemberContext.embedMessage — voyage closure fields', () => {
+    const PROJECT_FIELD = `Submitted Project for ${CURRENT_VOYAGE}`
+    const DEMO_DAY_FIELD = `Submitted Demo Day presentation for ${CURRENT_VOYAGE}:`
+
+    test('shows project and Demo Day fields as No by default', () => {
+        const ctx = buildContext({ applicationData: BASE_APPLICATION })
+        const fields = fieldMap(ctx.embedMessage)
+
+        expect(fields[PROJECT_FIELD]).toBe('No :x:')
+        expect(fields[DEMO_DAY_FIELD]).toBe('No :x:')
+    })
+
+    test('shows Yes for both fields when the member submitted both', () => {
+        const ctx = buildContext({ applicationData: BASE_APPLICATION })
+        ctx.voyageProjectText = `Yes ${CHECK_EMOJI}`
+        ctx.demoDayText = `Yes ${CHECK_EMOJI}`
+        const fields = fieldMap(ctx.embedMessage)
+
+        expect(fields[PROJECT_FIELD]).toBe(`Yes ${CHECK_EMOJI}`)
+        expect(fields[DEMO_DAY_FIELD]).toBe(`Yes ${CHECK_EMOJI}`)
+    })
+
+    test('labels the fields with the closure voyage, not the current voyage', () => {
+        const ctx = buildContext({
+            applicationData: BASE_APPLICATION,
+            voyageProjectVoyage: { number: 'V51' },
+            demoDayVoyage: { number: 'V51' },
+        })
+        const fields = fieldMap(ctx.embedMessage)
+
+        expect(fields).toHaveProperty('Submitted Project for V51')
+        expect(fields).toHaveProperty('Submitted Demo Day presentation for V51:')
+        expect(fields).not.toHaveProperty(PROJECT_FIELD)
+    })
+
+    test('renders both closure fields inline', () => {
+        const ctx = buildContext({ applicationData: BASE_APPLICATION })
+        const closureFields = ctx.embedMessage.data.fields
+            .filter(f => f.name.startsWith('Submitted '))
+
+        expect(closureFields).toHaveLength(2)
+        expect(closureFields.every(f => f.inline)).toBe(true)
+    })
+
+    test('omits closure fields when there is no closure voyage', () => {
+        const ctx = buildContext({
+            applicationData: BASE_APPLICATION,
+            voyageProjectVoyage: null,
+            demoDayVoyage: null,
+        })
+        const names = ctx.embedMessage.data.fields.map(f => f.name)
+
+        expect(names.some(n => n.startsWith('Submitted '))).toBe(false)
+    })
+
+    test('stays within Discord\'s 25-field embed limit', () => {
+        const ctx = buildContext({ applicationData: BASE_APPLICATION })
+
+        expect(ctx.embedMessage.data.fields.length).toBeLessThanOrEqual(25)
     })
 })
