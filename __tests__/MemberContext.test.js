@@ -775,6 +775,25 @@ describe('MemberContext.embedMessage — voyage closure fields', () => {
         expect(names.some(n => n.startsWith('Submitted '))).toBe(false)
     })
 
+    test('does not end with an empty spacer row when there is no closure voyage', () => {
+        const ctx = buildContext({
+            applicationData: BASE_APPLICATION,
+            closureVoyage: null,
+        })
+        const fields = ctx.embedMessage.data.fields
+
+        expect(fields.at(-1).name).toBe(`Commitment Form for ${NEXT_VOYAGE}?`)
+    })
+
+    test('separates the closure fields from the next-voyage row with a spacer', () => {
+        const ctx = buildContext({ applicationData: BASE_APPLICATION })
+        const fields = ctx.embedMessage.data.fields
+        const projectIndex = fields.findIndex(f => f.name.startsWith('Submitted Project'))
+
+        expect(fields[projectIndex - 1]).toEqual({ name: '​', value: '​' })
+        expect(fields[projectIndex - 2].name).toBe(`Commitment Form for ${NEXT_VOYAGE}?`)
+    })
+
     test('stays within Discord\'s 25-field embed limit', () => {
         const ctx = buildContext({ applicationData: BASE_APPLICATION })
 

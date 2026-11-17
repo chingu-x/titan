@@ -167,10 +167,11 @@ class MemberContext {
                     value: this.nextVoyageSignupData? this.commitmentFormText : 'N/A',
                     inline: true
                 },
-                { name: '\u200B', value: '\u200B' },
             )
             .addFields(
                 ...(this.closureVoyage ? [
+                    // Spacer ends the next-voyage row; only needed when closure fields follow
+                    { name: '\u200B', value: '\u200B' },
                     {
                         name: `Submitted Project for ${this.closureVoyage.number}`,
                         value: this.voyageProjectText,
