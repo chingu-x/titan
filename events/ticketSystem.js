@@ -1,10 +1,11 @@
-const { Events, EmbedBuilder } = require('discord.js');
-require('dotenv').config();
+import { Events, EmbedBuilder } from 'discord.js';
+import 'dotenv/config';
+
 const serverId = process.env.GUILD_ID;
 const channelId = process.env.PROCESS_TICKET_CHANNEL_ID;
 const MAX_MESSAGE_LENGTH = 1900;
 
-module.exports = {
+export default {
     name: Events.MessageCreate,
     execute: async (message) => {
         // If the message is from the bot itself, ignore it
@@ -164,5 +165,3 @@ module.exports = {
         }
     }
 };
-
-

@@ -1,7 +1,7 @@
-const { SlashCommandBuilder } = require('discord.js');
-const {MemberContext} = require('../../services/MemberContext.js');
+import { SlashCommandBuilder } from 'discord.js';
+import { MemberContext } from '../../services/MemberContext.js';
 
-module.exports = {
+export default {
     data: new SlashCommandBuilder()
         .setName('user')
         .setDescription('Provides information about you.'),

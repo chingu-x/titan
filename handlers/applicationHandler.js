@@ -1,17 +1,17 @@
-const { EmbedBuilder, ActionRowBuilder } = require('discord.js');
-const { base } = require('./airtable.js');
-const { getNextVoyage } = require('../utils/constants.js');
-const { 
+import { EmbedBuilder, ActionRowBuilder } from 'discord.js';
+import { base } from './airtable.js';
+import { getNextVoyage } from '../utils/constants.js';
+import {
     createSoloProjectButton,
-    createVoyageSignupButton, 
-    createCommitmentYesButton, 
-    createCommitmentNoButton, 
-    createTicketButton, 
+    createVoyageSignupButton,
+    createCommitmentYesButton,
+    createCommitmentNoButton,
+    createTicketButton,
     createApplicationButton
- } = require('../handlers/buttons.js');
+} from '../handlers/buttons.js';
 
 async function handleApplicationButton(interaction) {
-    
+
     try {
         const discordId = interaction.user.id;
 
@@ -186,4 +186,4 @@ async function handleApplicationButton(interaction) {
     }
 }
 
-module.exports = { handleApplicationButton };
+export { handleApplicationButton };

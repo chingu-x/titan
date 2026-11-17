@@ -1,4 +1,4 @@
-const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, EmbedBuilder, SlashCommandBuilder } = require('discord.js');
+import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 
 const createTextInput = (id, label, placeholder) =>
     new TextInputBuilder()
@@ -43,7 +43,7 @@ const createResponseEmbed = (user, yesterday, today, blockers) => {
         .setTimestamp();
 };
 
-module.exports = {
+export default {
     data: new SlashCommandBuilder()
         .setName('standup')
         .setDescription('Replies with a daily standup form for a team member to fill out'),
@@ -80,7 +80,7 @@ module.exports = {
             } catch (error) {
                 if (error.code === 'InteractionCollectorError') {
                     console.error('Standup interaction timed out.');
-                  
+
                 } else {
                     await handleError(interaction, error, 'An error occurred while processing your standup submission. Please try again.');
                 }
@@ -90,4 +90,3 @@ module.exports = {
         }
     },
 };
-

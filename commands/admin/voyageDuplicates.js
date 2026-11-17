@@ -1,9 +1,9 @@
-const { SlashCommandBuilder } = require('discord.js');
-const { base, adminChatID, adminTestID } = require("../../handlers/airtable.js");
-const { getNextVoyage, nextVoyageNumber} = require("../../utils/constants.js");
+import { SlashCommandBuilder } from 'discord.js';
+import { base, adminChatID, adminTestID } from '../../handlers/airtable.js';
+import { getNextVoyage, nextVoyageNumber } from '../../utils/constants.js';
 
 
-module.exports = {
+export default {
     data: new SlashCommandBuilder()
         .setName('voyageduplicates')
         .setDescription('Checks for duplicate signups for the next voyage'),

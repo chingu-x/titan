@@ -1,4 +1,4 @@
-const {
+import {
     ContextMenuCommandBuilder,
     ApplicationCommandType,
     PermissionsBitField,
@@ -6,9 +6,9 @@ const {
     TextInputStyle,
     ModalBuilder,
     ActionRowBuilder
-} = require("discord.js");
+} from 'discord.js';
 
-module.exports = {
+export default {
     data: new ContextMenuCommandBuilder()
         .setName("Send DM")
         .setType(ApplicationCommandType.User)

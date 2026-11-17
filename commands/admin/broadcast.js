@@ -1,6 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 
-module.exports = {
+export default {
     data: new SlashCommandBuilder()
         .setName('broadcast')
         .setDescription('Send a message to all channels in a category.')
@@ -54,8 +54,8 @@ module.exports = {
                           }).catch(console.error);
                         }
                       });
-                      
-                      await interaction.reply({ 
+
+                      await interaction.reply({
                         content: `Message broadcasted successfully to category <#${categoryId}>.`,
                         embeds: [embed]
                       });

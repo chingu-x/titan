@@ -40,4 +40,4 @@ function getDiscordTimestampRange(availabilityString) {
     return `<t:${startTimestamp}:t> - <t:${endTimestamp}:t>`;
 }
 
-module.exports = { getDiscordTimestampRange };
+export { getDiscordTimestampRange };

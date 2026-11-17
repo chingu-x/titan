@@ -1,11 +1,11 @@
-const {
+import {
     ContextMenuCommandBuilder,
     ApplicationCommandType,
     PermissionsBitField,
     EmbedBuilder
-} = require("discord.js");
+} from 'discord.js';
 
-module.exports = {
+export default {
     data: new ContextMenuCommandBuilder()
         .setName("Member Info")
         .setType(ApplicationCommandType.User)

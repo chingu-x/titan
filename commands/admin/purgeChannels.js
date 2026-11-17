@@ -1,7 +1,6 @@
-const { SlashCommandBuilder, Collection } = require('discord.js');
-require('dotenv').config();
+import { SlashCommandBuilder, Collection } from 'discord.js';
 
-module.exports = {
+export default {
     data: new SlashCommandBuilder()
         .setName('purgechannels')
         .setDescription('Purge all channels in a category.')
@@ -24,7 +23,7 @@ module.exports = {
 
                     // Check if channels is defined and is a Collection
                     if (channels && channels instanceof Collection) {
-                        
+
                         // Delete all channels in the category
                         channels.forEach(channel => channel.delete());
                         await interaction.reply('Category purged successfully.');

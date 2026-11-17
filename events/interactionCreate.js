@@ -1,8 +1,8 @@
-const { Events, EmbedBuilder} = require('discord.js');
-const { handleApplicationButton } = require('../handlers/applicationHandler.js');
-const { handleCommitmentButton } = require('../handlers/commitmentHandler.js');
+import { Events, EmbedBuilder } from 'discord.js';
+import { handleApplicationButton } from '../handlers/applicationHandler.js';
+import { handleCommitmentButton } from '../handlers/commitmentHandler.js';
 
-module.exports = {
+export default {
     name: Events.InteractionCreate,
     async execute(interaction) {
         try {
@@ -60,14 +60,14 @@ module.exports = {
                 }
                 return;
             }
-    
+
             if (!interaction.isChatInputCommand()) {
                 console.debug(`Ignoring non-chat input command interaction (type: ${interaction.type}, id: ${interaction.id})`);
                 return;
             }
-    
+
             const command = interaction.client.commands.get(interaction.commandName);
-    
+
             if (!command) {
                 console.error(`No command matching ${interaction.commandName} was found.`);
                 return;
