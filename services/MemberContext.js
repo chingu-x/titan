@@ -11,6 +11,10 @@ import { getSoloProjectsByDiscordId } from './soloProjects.js';
 import { getVoyageProjectsByDiscordId } from './voyageProjects.js';
 import { getDemoDaySignupsByDiscordId } from './demoDaySignups.js';
 
+// Full-width blank embed field used to end a row of inline fields.
+// '​' is a zero-width space; Discord rejects empty field names and values.
+const SPACER = Object.freeze({ name: '​', value: '​' });
+
 
 class MemberContext {
     constructor(interaction, discordId) {
@@ -96,7 +100,7 @@ class MemberContext {
                     value: this.soloProjectData?.['GitHub ID'] ? `${this.soloProjectData['GitHub ID']}` : 'N/A',
                     inline: true
                 },
-                { name: '​', value: '​' },
+                SPACER,
                 {
                     name: 'Discord account match',
                     value: this.applicationData?.['Discord Name'] === this.user.username
@@ -114,7 +118,7 @@ class MemberContext {
                     value: this.soloProjectTier,
                     inline: true
                 },
-                { name: '\u200B​', value: '\u200B​' },
+                SPACER,
             )
             .addFields(
                 {
@@ -127,7 +131,7 @@ class MemberContext {
                     value: this.getStatusMatchText('Discord Name'),
                     inline: true
                 },
-                { name: '\u200B​', value: '\u200B​' },
+                SPACER,
             )
             .addFields(
                 {
@@ -137,7 +141,7 @@ class MemberContext {
                 },
                 { name: `Tier and Team`, value: this.currentVoyageSignupTierTeam, inline: true },
                 { name: `Role`, value: this.currentVoyageSignupRole, inline: true },
-                { name: '\u200B​', value: '​\u200B' },
+                SPACER,
             )
             .addFields(
                 {
@@ -154,7 +158,7 @@ class MemberContext {
                         'N/A',
                     inline: true
                 },
-                { name: '\u200B​', value: '​\u200B' },
+                SPACER,
             )
             .addFields(
                 {
@@ -171,7 +175,7 @@ class MemberContext {
             .addFields(
                 ...(this.closureVoyage ? [
                     // Spacer ends the next-voyage row; only needed when closure fields follow
-                    { name: '\u200B', value: '\u200B' },
+                    SPACER,
                     {
                         name: `Submitted Project for ${this.closureVoyage.number}`,
                         value: this.voyageProjectText,

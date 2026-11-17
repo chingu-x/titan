@@ -794,6 +794,17 @@ describe('MemberContext.embedMessage — voyage closure fields', () => {
         expect(fields[projectIndex - 2].name).toBe(`Commitment Form for ${NEXT_VOYAGE}?`)
     })
 
+    test('uses a single zero-width space for every spacer field', () => {
+        const ctx = buildContext({ applicationData: BASE_APPLICATION })
+        const spacers = ctx.embedMessage.data.fields
+            .filter(f => f.name.replace(/​/g, '') === '')
+
+        expect(spacers).toHaveLength(6)
+        for (const spacer of spacers) {
+            expect(spacer).toEqual({ name: '​', value: '​' })
+        }
+    })
+
     test('stays within Discord\'s 25-field embed limit', () => {
         const ctx = buildContext({ applicationData: BASE_APPLICATION })
 
