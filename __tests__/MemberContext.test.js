@@ -17,6 +17,7 @@ import { getSoloProjectsByDiscordId } from '../services/soloProjects.js'
 import { getVoyageProjectsByDiscordId } from '../services/voyageProjects.js'
 import { getDemoDaySignupsByDiscordId } from '../services/demoDaySignups.js'
 import { MemberContext } from '../services/MemberContext.js'
+import { readFileSync } from 'node:fs'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -724,7 +725,7 @@ describe('MemberContext closure loaders (loadClosureVoyage, loadVoyageProjects, 
 
 describe('MemberContext.embedMessage — voyage closure fields', () => {
     const PROJECT_FIELD = `Submitted Project for ${CURRENT_VOYAGE}`
-    const DEMO_DAY_FIELD = `Submitted Demo Day presentation for ${CURRENT_VOYAGE}:`
+    const DEMO_DAY_FIELD = `Submitted Demo Day presentation for ${CURRENT_VOYAGE}`
 
     test('shows project and Demo Day fields as No by default', () => {
         const ctx = buildContext({ applicationData: BASE_APPLICATION })
@@ -752,7 +753,7 @@ describe('MemberContext.embedMessage — voyage closure fields', () => {
         const fields = fieldMap(ctx.embedMessage)
 
         expect(fields).toHaveProperty('Submitted Project for V51')
-        expect(fields).toHaveProperty('Submitted Demo Day presentation for V51:')
+        expect(fields).toHaveProperty('Submitted Demo Day presentation for V51')
         expect(fields).not.toHaveProperty(PROJECT_FIELD)
     })
 
@@ -790,19 +791,25 @@ describe('MemberContext.embedMessage — voyage closure fields', () => {
         const fields = ctx.embedMessage.data.fields
         const projectIndex = fields.findIndex(f => f.name.startsWith('Submitted Project'))
 
-        expect(fields[projectIndex - 1]).toEqual({ name: '​', value: '​' })
+        expect(fields[projectIndex - 1]).toEqual({ name: '\u200B', value: '\u200B' })
         expect(fields[projectIndex - 2].name).toBe(`Commitment Form for ${NEXT_VOYAGE}?`)
     })
 
     test('uses a single zero-width space for every spacer field', () => {
         const ctx = buildContext({ applicationData: BASE_APPLICATION })
         const spacers = ctx.embedMessage.data.fields
-            .filter(f => f.name.replace(/​/g, '') === '')
+            .filter(f => f.name.replace(/\u200B/g, '') === '')
 
         expect(spacers).toHaveLength(6)
         for (const spacer of spacers) {
-            expect(spacer).toEqual({ name: '​', value: '​' })
+            expect(spacer).toEqual({ name: '\u200B', value: '\u200B' })
         }
+    })
+
+    test('source contains no literal zero-width spaces (use the \\u200B escape)', () => {
+        const source = readFileSync(new URL('../services/MemberContext.js', import.meta.url), 'utf8')
+
+        expect(source.includes('\u200B')).toBe(false)
     })
 
     test('stays within Discord\'s 25-field embed limit', () => {

@@ -12,8 +12,11 @@ import { getVoyageProjectsByDiscordId } from './voyageProjects.js';
 import { getDemoDaySignupsByDiscordId } from './demoDaySignups.js';
 
 // Full-width blank embed field used to end a row of inline fields.
-// '​' is a zero-width space; Discord rejects empty field names and values.
-const SPACER = Object.freeze({ name: '​', value: '​' });
+// '\u200B' is a zero-width space; Discord rejects empty field names and values.
+const SPACER = Object.freeze({ name: '\u200B', value: '\u200B' });
+
+// Animated check-mark emoji from the Chingu server, shown next to completed items.
+const CHECK = '<a:check:1209501960139702363>';
 
 
 class MemberContext {
@@ -92,7 +95,7 @@ class MemberContext {
             .addFields(
                 {
                     name: 'Email',
-                    value: this.applicationData?.['Email'] ? `${this.applicationData['Email']} <a:check:1209501960139702363>` : 'No email found :x:',
+                    value: this.applicationData?.['Email'] ? `${this.applicationData['Email']} ${CHECK}` : 'No email found :x:',
                     inline: true
                 },
                 {
@@ -104,7 +107,7 @@ class MemberContext {
                 {
                     name: 'Discord account match',
                     value: this.applicationData?.['Discord Name'] === this.user.username
-                        ? 'OK <a:check:1209501960139702363>'
+                        ? `OK ${CHECK}`
                         : 'Mismatch :x:',
                     inline: true
                 },
@@ -182,7 +185,7 @@ class MemberContext {
                         inline: true
                     },
                     {
-                        name: `Submitted Demo Day presentation for ${this.closureVoyage.number}:`,
+                        name: `Submitted Demo Day presentation for ${this.closureVoyage.number}`,
                         value: this.demoDayText,
                         inline: true
                     },
@@ -220,7 +223,7 @@ class MemberContext {
         }
 
         if (this.evaluationStatus?.toLowerCase() === 'passed') {
-            this.evaluationEmoji = '<a:check:1209501960139702363>';
+            this.evaluationEmoji = CHECK;
         }
     }
 
@@ -285,11 +288,11 @@ class MemberContext {
                 } else {
                     const tierName = signup.fields['Team Name']
                     this.nextVoyageSignupText = tierName !== undefined && tierName !== ""
-                        ? `Yes (${tierName.slice(0,6)}) <a:check:1209501960139702363>`
+                        ? `Yes (${tierName.slice(0,6)}) ${CHECK}`
                         : `Tier not yet assigned`
                 }
                 this.commitmentFormText = signup.fields['Confirmation Form Completed'] === 'Yes'
-                    ? 'Yes <a:check:1209501960139702363>'
+                    ? `Yes ${CHECK}`
                     : `No :x: [Fill out Confirmation Form](${ process.env.VOYAGE_CONFIRMATION_FORM })`
             }
         })
@@ -324,7 +327,7 @@ class MemberContext {
         if (!voyageProjects?.length) {
             return;
         }
-        this.voyageProjectText = 'Yes <a:check:1209501960139702363>';
+        this.voyageProjectText = `Yes ${CHECK}`;
     }
 
     async loadDemoDaySignups() {
@@ -339,7 +342,7 @@ class MemberContext {
         if (!demoDaySubmissions?.length) {
             return;
         }
-        this.demoDayText = 'Yes <a:check:1209501960139702363>';
+        this.demoDayText = `Yes ${CHECK}`;
     }
 
     /**
@@ -349,11 +352,11 @@ class MemberContext {
      */
     getStatusMatchText(fieldName) {
         if (this.currentVoyageSignupData?.[fieldName] === this.applicationData?.[fieldName]) {
-            return 'Match <a:check:1209501960139702363>';
+            return `Match ${CHECK}`;
         }
 
         if (this.nextVoyageSignupData?.[fieldName] === this.applicationData?.[fieldName]) {
-            return 'Match <a:check:1209501960139702363>';
+            return `Match ${CHECK}`;
         }
 
         if (this.currentVoyageSignupData) {

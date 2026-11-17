@@ -198,6 +198,7 @@ Several test names end with a numbered test case (for example "Test case 4"). Th
 | does not end with an empty spacer row when there is no closure voyage | Confirm the embed has no blank row at the bottom when closure fields are left out |
 | separates the closure fields from the next-voyage row with a spacer | Confirm the closure fields start on their own row |
 | uses a single zero-width space for every spacer field | Confirm all six spacer fields are identical, with no stray invisible characters |
+| source contains no literal zero-width spaces | Confirm spacers use the visible `\u200B` escape rather than an invisible character |
 | stays within Discord's 25-field embed limit | Confirm the full embed won't be rejected by Discord |
 
 #### Voyage utilities - `__tests__/utils/functions.test.js`
