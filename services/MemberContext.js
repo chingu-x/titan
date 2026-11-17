@@ -1,4 +1,7 @@
-import { getCurrentAndNextVoyage, getCurrentAndPriorVoyage } from '../utils/functions.js';
+import { 
+    getCurrentAndNextVoyage,
+    getCurrentAndPriorVoyage,
+    selectVoyageForClosureInfo } from '../utils/functions.js';
 import { getAllVoyageSignupsByDiscordId } from './voyages.js';
 import { getApplicationsByDiscordId } from './applications.js';
 import { getDiscordTimestampRange } from '../utils/timeBlocks.js';
@@ -291,27 +294,12 @@ class MemberContext {
             `${this.currentVoyageSignupData['Role']}` : 'N/A';
     }
 
-    async selectVoyageForClosureInfo(currentVoyage, priorVoyage) {
-        if (currentVoyage === null) {
-            return priorVoyage;
-        }
-        // Without a Sprint 5 date we can't tell whether closure has started,
-        // so fall back to the prior voyage.
-        const sprint5HasStarted =
-            currentVoyage.sprint5StartDate !== null &&
-            new Date() >= currentVoyage.sprint5StartDate;
-        if (sprint5HasStarted) {
-            return currentVoyage;
-        }
-        return priorVoyage ?? currentVoyage;
-    }
-
     async loadVoyageProjects() {
         const { currentVoyage, priorVoyage } = await getCurrentAndPriorVoyage();
         if (currentVoyage === null && priorVoyage === null) {
             return;
         }
-        this.voyageProjectVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage);
+        this.voyageProjectVoyage = selectVoyageForClosureInfo(currentVoyage, priorVoyage);
         const voyageProjects = await getVoyageProjectsByDiscordId(
             this.voyageProjectVoyage.number,
             this.discordId,
@@ -328,7 +316,7 @@ class MemberContext {
         if (currentVoyage === null && priorVoyage === null) {
             return;
         }
-        this.demoDayVoyage = await this.selectVoyageForClosureInfo(currentVoyage, priorVoyage);
+        this.demoDayVoyage = selectVoyageForClosureInfo(currentVoyage, priorVoyage);
         const demoDaySubmissions = await getDemoDaySignupsByDiscordId(
             this.demoDayVoyage.number,
             this.discordId,

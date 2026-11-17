@@ -71,4 +71,23 @@ async function getCurrentAndPriorVoyage() {
     return { currentVoyage, priorVoyage };
 }
 
-export { getCurrentAndNextVoyage, getCurrentAndPriorVoyage };
+function selectVoyageForClosureInfo(currentVoyage, priorVoyage) {
+    if (currentVoyage === null) {
+        return priorVoyage;
+    }
+    // Without a Sprint 5 date we can't tell whether closure has started,
+    // so fall back to the prior voyage.
+    const sprint5HasStarted =
+        currentVoyage.sprint5StartDate !== null &&
+        new Date() >= currentVoyage.sprint5StartDate;
+    if (sprint5HasStarted) {
+        return currentVoyage;
+    }
+    return priorVoyage ?? currentVoyage;
+}
+
+export { 
+    getCurrentAndNextVoyage, 
+    getCurrentAndPriorVoyage,
+    selectVoyageForClosureInfo,
+};
