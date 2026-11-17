@@ -57,7 +57,8 @@ class MemberContext {
         if(instance.user === null) {
             return instance;
         }
-        // Fetch the voyage schedule once and share it with every loader that needs it
+        // Fetch the voyage schedule once and share it with every loader that
+        // needs it
         const voyages = await getVoyages();
 
         await instance.loadSoloProjects()
